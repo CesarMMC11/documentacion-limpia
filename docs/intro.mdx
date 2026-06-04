@@ -1,0 +1,54 @@
+---
+id: intro
+slug: /
+title: DOCUMENTACIÓN
+hide_title: true
+hide_table_of_contents: true 
+---
+
+import WelcomeCard from '@site/src/components/WelcomeCard';
+import Roadmap from '@site/src/components/Roadmap';
+import MoneyFlow from '@site/src/components/MoneyFlow';
+import Features from '@site/src/components/Features';
+import ComparisonTable from '@site/src/components/ComparisonTable';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+{/* Contenedor principal del encabezado con el colibrí */}
+<div style={{ position: 'relative', marginTop: '1rem', marginBottom: '2rem' }}>
+
+  {/* Contenedor de los textos */}
+  <div style={{ position: 'relative', zIndex: 2 }}>
+    <h1 style={{ fontSize: '1rem', color: 'var(--ifm-color-primary)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>
+      Guía para nuevos integradores
+    </h1>
+    <h2 style={{ fontSize: '3.5rem', fontWeight: '800', lineHeight: '1.1', marginBottom: '1rem', color: '#fff' }}>
+      ¿Primera vez con <span style={{ color: 'var(--ifm-color-primary)' }}>SPIDI</span>?
+    </h2>
+    <p style={{ color: '#a0b2bd', fontSize: '1.1rem', maxWidth: '600px' }}>
+      Todo lo que necesitas saber antes de escribir una sola línea de código.
+    </p>
+  </div>
+
+  {/* Imagen del Colibrí posicionada a la derecha */}
+  <img 
+    src={useBaseUrl('/img/brandMascotColibri.png')} 
+    alt="Colibrí SPIDI" 
+    style={{
+      position: 'absolute',
+      top: '-20px',    /* Sube un poco el colibrí */
+      right: '0',      /* Lo pega a la derecha */
+      height: '180px', /* Ajusta el tamaño según necesites */
+      opacity: 0.4,    /* Opacidad baja como en el diseño */
+      zIndex: 1,
+      pointerEvents: 'none' /* Evita que estorbe si pasas el mouse por ahí */
+    }} 
+  />
+
+</div>
+
+{/* Aquí cargan todos tus componentes */}
+<WelcomeCard />
+<Roadmap />
+<MoneyFlow />
+<Features />
+<ComparisonTable />

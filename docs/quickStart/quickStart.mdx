@@ -1,0 +1,125 @@
+---
+id: pasos
+title: Pasos para usar SPIDI
+hide_title: true
+---
+
+<span style={{ color: 'var(--ifm-color-primary)', fontWeight: 800, fontSize: '0.85rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+  Inicio Rápido
+</span>
+<h1 style={{ fontSize: '3.2rem', fontWeight: 900, marginBottom: '1rem', color: '#ffffff' }}>
+  Quick <span style={{ color: 'var(--ifm-color-primary)' }}>Start</span>
+</h1>
+
+<p style={{ fontSize: '1.15rem', color: '#a0b2bd', marginBottom: '3.5rem', lineHeight: '1.6' }}>
+  Guía paso a paso para empezar a usar SPIDI lo antes posible.
+</p>
+
+## Pasos para usar SPIDI
+<hr style={{ borderColor: '#132724', margin: '1.5rem 0 0 0' }} />
+
+<StepItem 
+  number="1" 
+  title="Solicita credenciales y UUIDs" 
+  description="Solicita la creación de credenciales y el UUID de tus cuentas bancarias para poder usar la API de SPIDI." 
+/>
+<StepItem 
+  number="2" 
+  title="Define acuerdos de pago y liquidación" 
+  description="Establece cómo tú y tus socios quieren recibir los pagos, mediante acuerdos de pago y de liquidación." 
+/>
+<StepItem 
+  number="3" 
+  title="Escoge un producto" 
+  description="Botones de Pago SPIDI, Solicitudes de Pago SPIDI o Paradas SPIDI." 
+/>
+<StepItem 
+  number="4" 
+  title="Integra en tu plataforma" 
+  description="Sigue la documentación de cada producto." 
+/>
+
+
+<h2 style={{ marginTop: '4rem', marginBottom: '1.5rem' }}>Productos disponibles</h2>
+<hr style={{ borderColor: '#132724', marginBottom: '2rem' }} />
+
+{/* Grid responsivo para las tarjetas de productos */}
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+  
+  <ProductCard 
+    icon="🔘" 
+    title="Botones de Pago" 
+    linkText="Ver detalle de integración" 
+  />
+  <ProductCard 
+    icon="🔗" 
+    title="Solicitudes de Pago" 
+    linkText="Ver detalle de integración" 
+  />
+  <ProductCard 
+    icon="🚏" 
+    title="Paradas SPIDI" 
+    linkText="Ver detalle de integración" 
+  />
+
+</div>
+
+{/* ==========================================
+    COMPONENTES REUTILIZABLES (Magia de MDX)
+    ========================================== */}
+
+export const StepItem = ({ number, title, description }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.5rem', padding: '2rem 0', borderBottom: '1px solid #132724' }}>
+    <div style={{ 
+      backgroundColor: 'var(--ifm-color-primary)', 
+      color: '#081014', 
+      width: '45px', 
+      height: '45px', 
+      borderRadius: '12px', 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      fontWeight: '900', 
+      fontSize: '1.3rem', 
+      flexShrink: 0 
+    }}>
+      {number}
+    </div>
+    <div>
+      <h3 style={{ color: '#fff', fontSize: '1.25rem', margin: '0 0 0.5rem 0', fontWeight: '800' }}>{title}</h3>
+      <p style={{ color: '#a0b2bd', margin: 0, fontSize: '0.95rem', lineHeight: '1.6' }}>{description}</p>
+    </div>
+  </div>
+);
+
+export const ProductCard = ({ icon, title, linkText }) => (
+  <div style={{ 
+    backgroundColor: '#0a1317', 
+    border: '1px solid #132724', 
+    borderRadius: '16px', 
+    padding: '2rem', 
+    display: 'flex', 
+    flexDirection: 'column', 
+    gap: '1rem', 
+    transition: 'border-color 0.2s ease, transform 0.2s ease',
+    cursor: 'pointer'
+  }}
+  onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--ifm-color-primary)'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
+  onMouseOut={(e) => { e.currentTarget.style.borderColor = '#132724'; e.currentTarget.style.transform = 'translateY(0)'; }}
+  >
+    <div style={{ 
+      width: '45px', 
+      height: '45px', 
+      backgroundColor: '#112228', 
+      borderRadius: '12px', 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      fontSize: '1.3rem' 
+    }}>
+      {icon}
+    </div>
+    <h3 style={{ color: '#fff', fontSize: '1.3rem', margin: 0, fontWeight: '800' }}>{title}</h3>
+    <span style={{ color: '#5b7a73', fontSize: '0.9rem', fontWeight: '500' }}>{linkText}</span>
+  </div>
+);

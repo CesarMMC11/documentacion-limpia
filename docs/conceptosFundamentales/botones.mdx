@@ -1,0 +1,110 @@
+---
+id: botones-de-pago
+title: Botones de Pago
+hide_title: true
+---
+
+<span style={{ color: 'var(--ifm-color-primary)', fontWeight: 800, fontSize: '0.85rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+  Conceptos Fundamentales
+</span>
+<h1 style={{ fontSize: '3.2rem', fontWeight: 900, marginBottom: '1rem', color: '#ffffff' }}>
+  Botones de <span style={{ color: 'var(--ifm-color-primary)' }}>Pago</span>
+</h1>
+
+<p style={{ fontSize: '1.15rem', color: '#a0b2bd', marginBottom: '3.5rem', lineHeight: '1.6' }}>
+  La forma más directa de recibir pagos inmediatos desde tu sitio web o aplicación móvil.
+</p>
+
+## ¿Qué son los botones de pago SPIDI?
+
+Los **Botones de Pago SPIDI** permiten que tus usuarios paguen desde **cualquier banco venezolano o Binance Pay (USDT)** sin salir de tu plataforma. Habilita todos los medios de pago inmediatos: **débito bancario, Pago Móvil y Binance Pay**, con **liquidación directa en bolívares**.
+
+## Tipos de botones
+
+* 🖥️ **Botón SPIDI para Web**: para sitios o aplicaciones web, pago en el navegador.
+* 📱 **Botón SPIDI para App**: para apps móviles (Android, iOS, híbridos), con deeplinks o WebView.
+
+## Base común de todos los flujos
+
+* Sesión de pago creada via API con monto e identificación
+* SPIDI genera un **hash único**, status inicial: `pending`
+* Vida útil: **10 minutos**
+* Estados: `pending`, `paid`, `failed`, `expired`
+* Estado `failed` termina la sesión definitivamente
+* No se permiten operaciones cerca de medianoche
+
+---
+
+## Botón SPIDI para Web
+
+### Estrategia 1 — Misma pestaña (recomendada)
+**Flujo:** Tu web → SPIDI (misma pestaña) → Redirección automática a tu web
+
+1. Usuario hace clic en botón de pago
+2. Tu backend crea sesión con `success_url`, `failure_url`, y opcionalmente `webhook_url`
+3. SPIDI responde con `session_id`
+4. Tu frontend construye `payment_url` → `{url_base}/{session_id}`
+5. Rediriges con `window.location.href`
+6. Tras pago, SPIDI redirige a `{success_url}?session_id=sess_abc123`
+7. Tu app lee el `session_id` y consulta endpoint de estado para validar
+
+{/* Caja de Alerta (Warning) */}
+<div style={{ backgroundColor: '#0a161b', border: '1px solid #2a3a35', borderRadius: '12px', padding: '1.2rem', display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '2.5rem', marginTop: '1.5rem' }}>
+  <span style={{ fontSize: '1.2rem', color: '#ffd700' }}>⚠️</span>
+  <p style={{ margin: 0, fontSize: '0.95rem', color: '#a0b2bd' }}>
+    <strong style={{ color: '#fff' }}>Nunca asumas que llegar al success_url implica un pago exitoso.</strong> Siempre valida con el endpoint de estado.
+  </p>
+</div>
+
+### Estrategia 2 — Nueva pestaña (casos especiales)
+**Flujo:** Tu web → Nueva pestaña con SPIDI → Usuario cierra pestaña → Regresa a tu web
+
+Dejar `success_url` y `failure_url` vacíos. Usar polling, botón "Ya pagué", o webhooks.
+
+---
+
+## Botón SPIDI para App
+
+### Estrategia 1 — Deeplink (recomendada)
+Configura `success_url: miapp://pago-exitoso` y `failure_url: miapp://pago-fallido`. SPIDI redirige al deeplink con `session_id`.
+
+### Estrategia 2 — Captura de cambio de URL
+Detecta cambio de URL dentro del WebView, cierra WebView, muestra pantalla nativa.
+
+{/* Caja de Nota (Tip) */}
+<div style={{ backgroundColor: '#0a161b', border: '1px solid #132724', borderRadius: '12px', padding: '1.2rem', display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '2.5rem', marginTop: '1.5rem' }}>
+  <span style={{ fontSize: '1.2rem', color: '#ffb84d' }}>💡</span>
+  <p style={{ margin: 0, fontSize: '0.95rem', color: '#a0b2bd' }}>
+    <strong style={{ color: '#fff' }}>Nota técnica WebView:</strong> SPIDI requiere WebView con soporte para interceptar URLs, ejecutar JavaScript, y seguridad moderna. Recomendados: WKWebView (iOS), Chrome Custom Tabs (Android).
+  </p>
+</div>
+
+---
+
+## Comprobante y fidelización
+
+El endpoint de status devuelve una **URL del comprobante de pago**. Mostrar este enlace mejora la transparencia y en el comprobante SPIDI invita al usuario a registrarse, lo que **reduce comisiones** a mediano plazo.
+
+## Resumen de endpoints
+
+{/* Tarjeta POST */}
+<div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '1.5rem', border: '1px solid #132724' }}>
+  <div style={{ backgroundColor: '#dcf0ea', padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+    <span style={{ backgroundColor: '#b5e3d8', color: '#043b2c', fontWeight: 'bold', padding: '4px 10px', borderRadius: '6px', fontSize: '0.85rem', fontFamily: 'monospace' }}>POST</span>
+    <code style={{ backgroundColor: 'transparent', color: '#ffffff', fontSize: '1rem', border: 'none', padding: 0, textShadow: '0 1px 3px rgba(0,0,0,0.2)' }}>/api/v1/ext/payment-sessions/buttons</code>
+  </div>
+  <div style={{ backgroundColor: '#eef8f5', padding: '1.2rem', color: '#5b7a73', fontSize: '0.95rem' }}>
+    Crear sesión de pago tipo botón.
+  </div>
+</div>
+
+{/* Tarjeta GET */}
+<div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '3rem', border: '1px solid #132724' }}>
+  <div style={{ backgroundColor: '#dcf0ea', padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+    <span style={{ backgroundColor: '#b5e3d8', color: '#043b2c', fontWeight: 'bold', padding: '4px 10px', borderRadius: '6px', fontSize: '0.85rem', fontFamily: 'monospace' }}>GET</span>
+    <code style={{ backgroundColor: 'transparent', color: '#ffffff', fontSize: '1rem', border: 'none', padding: 0, textShadow: '0 1px 3px rgba(0,0,0,0.2)' }}>/api/v1/ext/payment-sessions/status/&#123;session_id&#125;</code>
+  </div>
+  <div style={{ backgroundColor: '#eef8f5', padding: '1.2rem', color: '#5b7a73', fontSize: '0.95rem' }}>
+    Consultar estado y resultado de la sesión.
+  </div>
+</div>

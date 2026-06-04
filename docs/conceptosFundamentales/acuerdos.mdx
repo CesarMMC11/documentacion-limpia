@@ -1,0 +1,77 @@
+---
+id: acuerdo-de-pago
+title: Acuerdo de Pago
+hide_title: true
+---
+
+<span style={{ color: 'var(--ifm-color-primary)', fontWeight: 800, fontSize: '0.85rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+  Conceptos Fundamentales
+</span>
+<h1 style={{ fontSize: '3.2rem', fontWeight: 900, marginBottom: '1rem', color: '#ffffff' }}>
+  Acuerdo de <span style={{ color: 'var(--ifm-color-primary)' }}>Pago</span>
+</h1>
+
+<p style={{ fontSize: '1.15rem', color: '#a0b2bd', marginBottom: '3.5rem', lineHeight: '1.6' }}>
+  Núcleo del sistema de distribución y liquidación inteligente de fondos.
+</p>
+
+## ¿Qué es un Acuerdo de Pago?
+
+Un **Acuerdo de Pago** es un contrato digital que establece las reglas de distribución y liquidación para las transacciones. Funciona como un "contrato inteligente" que define:
+
+* **Cómo se dividirán los fondos** entre el comercio propietario y sus partners o distribuidores
+* **A qué cuentas bancarias** se dirigirán los pagos según el banco de origen del pagador
+* **Qué medios de pago** acepta el acuerdo (débito inmediato, criptomonedas, pagos móviles)
+* **Las reglas de liquidación** que optimizan la distribución de fondos
+
+## Funcionalidades Principales
+
+### 🎯 Distribución de Pagos (Split Payment)
+* **Split Fijo (FIXED)**: Porcentajes de distribución predefinidos y constantes
+* **Split Dinámico (SESSION)**: Configuración flexible en cada sesión de pago
+* **Múltiples Receptores**: Distribuir fondos entre el comercio y múltiples partners
+* **Validación Automática**: Suma de porcentajes = 100%
+
+### 🏢 Liquidación Bancaria Inteligente
+* **Reglas por Banco de Origen**: Dirige pagos a diferentes cuentas según el banco del pagador
+* **Cuenta por Defecto**: Configuración de respaldo para bancos no especificados
+* **Optimización de Costos**: Reduce comisiones bancarias
+* **Soporte Multi-Banco**: Compatible con todos los bancos venezolanos
+
+### 💳 Medios de Pago Configurables
+* **Débito Inmediato**: Pagos directos desde cuentas bancarias
+* **Criptomonedas**: Bitcoin, Ethereum y otras via Binance Pay
+* **Pagos Móviles**: Integración con sistemas de pago móvil
+
+## Tipos de Acuerdo
+
+* **Tipo "Button"**: Para pagos iniciados por el comercio. Configuración simple, ideal para e-commerce.
+* **Tipo "Request"**: Para solicitudes de pago enviadas al cliente. Mayor flexibilidad.
+
+## Endpoints Disponibles
+
+{/* Tarjeta del Endpoint POST */}
+<div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '1.5rem', border: '1px solid #132724' }}>
+  <div style={{ backgroundColor: '#dcf0ea', padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+    <span style={{ backgroundColor: '#b5e3d8', color: '#043b2c', fontWeight: 'bold', padding: '4px 10px', borderRadius: '6px', fontSize: '0.85rem', fontFamily: 'monospace' }}>POST</span>
+    <code style={{ backgroundColor: 'transparent', color: '#ffffff', fontSize: '1rem', border: 'none', padding: 0, textShadow: '0 1px 3px rgba(0,0,0,0.2)' }}>/api/v1/ext/agreements</code>
+  </div>
+  <div style={{ backgroundColor: '#eef8f5', padding: '1.2rem', color: '#5b7a73', fontSize: '0.95rem' }}>
+    Crear un nuevo acuerdo de pago con configuración completa de split y liquidación.
+  </div>
+</div>
+
+{/* Tarjeta oscura de Endpoints en desarrollo */}
+<div style={{ backgroundColor: '#0a161b', border: '1px solid #132724', borderRadius: '12px', padding: '1.2rem', display: 'flex', gap: '1rem', alignItems: 'center', color: '#a0b2bd', marginBottom: '3rem' }}>
+  <span style={{ fontSize: '1.2rem' }}>🛠️</span>
+  <p style={{ margin: 0, fontSize: '0.95rem' }}>Endpoints en desarrollo: GET, PUT y DELETE de agreements para consultar, actualizar y eliminar acuerdos.</p>
+</div>
+
+## Flujo de Trabajo Típico
+
+1. Creación del Acuerdo: define reglas de distribución y liquidación
+2. Configuración de Split: establece división de fondos
+3. Definición de Reglas Bancarias: configura liquidación inteligente
+4. Activación: el acuerdo queda listo para procesar
+5. Uso en Sesiones: se aplica automáticamente en cada pago
+6. Monitoreo: seguimiento de transacciones y distribuciones

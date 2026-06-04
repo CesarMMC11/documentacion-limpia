@@ -1,0 +1,40 @@
+---
+id: estado-sesion-boton
+title: Estado Sesión (B)
+hide_title: true
+---
+
+<span style={{ color: 'var(--ifm-color-primary)', fontWeight: 800, fontSize: '0.85rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+  Endpoints Botón
+</span>
+<h1 style={{ fontSize: '3.2rem', fontWeight: 900, marginBottom: '2.5rem', color: '#ffffff' }}>
+  Consultar Estado Sesión (Botón)
+</h1>
+
+{/* Tarjeta del Endpoint */}
+<div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '1.5rem', border: '1px solid #132724' }}>
+  <div style={{ backgroundColor: '#dcf0ea', padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+    <span style={{ backgroundColor: '#b5e3d8', color: '#043b2c', fontWeight: 'bold', padding: '4px 10px', borderRadius: '6px', fontSize: '0.85rem', fontFamily: 'monospace' }}>GET</span>
+    <code style={{ backgroundColor: 'transparent', color: '#ffffff', fontSize: '1rem', border: 'none', padding: 0, textShadow: '0 1px 3px rgba(0,0,0,0.2)' }}>/api/v1/ext/payment-sessions/status/&#123;session_id&#125;</code>
+  </div>
+  <div style={{ backgroundColor: '#eef8f5', padding: '1.2rem', color: '#5b7a73', fontSize: '0.95rem' }}>
+    Consulta el estado actual de una sesión de pago. Retorna estado, detalles del pago, y URL del comprobante.
+  </div>
+</div>
+
+<p style={{ color: '#a0b2bd', fontSize: '1.05rem', lineHeight: '1.6', marginBottom: '4rem' }}>
+  Estados posibles: <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)', padding: '2px 6px', borderRadius: '4px' }}>pending</code> , <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)', padding: '2px 6px', borderRadius: '4px' }}>paid</code> , <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)', padding: '2px 6px', borderRadius: '4px' }}>failed</code> , <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)', padding: '2px 6px', borderRadius: '4px' }}>expired</code> .
+</p>
+
+{/* Sección de Construcción Centrada */}
+<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginTop: '2rem', marginBottom: '4rem' }}>
+  <div style={{ width: '80px', height: '80px', backgroundColor: '#0a161b', borderRadius: '20px', border: '2px dashed #132724', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '2.5rem', marginBottom: '2rem' }}>🚧</div>
+  <h2 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '1rem' }}>Documentación en construcción</h2>
+  <p style={{ color: '#a0b2bd', fontSize: '1.05rem', maxWidth: '600px', lineHeight: '1.6', marginBottom: '2.5rem' }}>
+    Estamos trabajando en el contenido detallado de esta sección. Pronto encontrarás ejemplos completos, sandbox interactivo y descripción de cada campo.
+  </p>
+  <div style={{ backgroundColor: '#052a20', border: '1px solid #0a4032', padding: '8px 24px', borderRadius: '24px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+    <span style={{ color: 'var(--ifm-color-primary)', fontSize: '0.6rem' }}>●</span>
+    <span style={{ color: 'var(--ifm-color-primary)', fontSize: '0.85rem', fontWeight: 'bold', letterSpacing: '1px' }}>PRÓXIMAMENTE</span>
+  </div>
+</div>

@@ -1,0 +1,104 @@
+---
+id: crear-sesion-boton
+title: Crear Sesión de Pago (Botón)
+hide_title: true
+---
+
+<span style={{ color: 'var(--ifm-color-primary)', fontWeight: 800, fontSize: '0.85rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+  Endpoints Botón
+</span>
+<h1 style={{ fontSize: '3.2rem', fontWeight: 900, marginBottom: '2.5rem', color: '#ffffff' }}>
+  Crear Sesión de Pago (Botón)
+</h1>
+
+{/* Tarjeta del Endpoint */}
+<div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '3rem', border: '1px solid #132724' }}>
+  <div style={{ backgroundColor: '#dcf0ea', padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+    <span style={{ backgroundColor: '#b5e3d8', color: '#043b2c', fontWeight: 'bold', padding: '4px 10px', borderRadius: '6px', fontSize: '0.85rem', fontFamily: 'monospace' }}>POST</span>
+    <code style={{ backgroundColor: 'transparent', color: '#ffffff', fontSize: '1rem', border: 'none', padding: 0, textShadow: '0 1px 3px rgba(0,0,0,0.2)' }}>/api/v1/ext/payment-sessions/buttons</code>
+  </div>
+  <div style={{ backgroundColor: '#eef8f5', padding: '1.2rem', color: '#5b7a73', fontSize: '0.95rem' }}>
+    Genera una sesión de pago tipo botón y devuelve el <code style={{ backgroundColor: '#cbece1', color: '#038563', padding: '2px 6px', borderRadius: '4px' }}>session_id</code> para construir el <code style={{ backgroundColor: '#cbece1', color: '#038563', padding: '2px 6px', borderRadius: '4px' }}>payment_url</code>.
+  </div>
+</div>
+
+## Campos principales del request
+
+<div style={{ backgroundColor: '#0b161b', borderRadius: '12px', border: '1px solid #132724', overflowX: 'auto', marginBottom: '3rem', marginTop: '1.5rem' }}>
+  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px', margin: 0 }}>
+    <thead>
+      <tr style={{ backgroundColor: '#112228', borderBottom: '1px solid #132724' }}>
+        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '25%' }}>Campo</th>
+        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '20%' }}>Tipo</th>
+        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '55%' }}>Descripción</th>
+      </tr>
+    </thead>
+    <tbody style={{ color: '#a0b2bd', fontSize: '0.95rem' }}>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>agreement_id</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>UUID</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>ID del acuerdo de liquidación</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>amount</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>number</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Monto con 2 decimales</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>currency</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>string</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Moneda: VES, USD_BCV, EUR_BCV, COP, USDT</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>success_url</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>string</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>URL de redirección tras pago exitoso</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>failure_url</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>string</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>URL de redirección tras fallo</td>
+      </tr>
+      <tr>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>webhook_url</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>string</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>URL para recibir webhooks (recomendado)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+## Responses
+
+<div style={{ backgroundColor: '#0b161b', borderRadius: '12px', border: '1px solid #132724', overflowX: 'auto', marginBottom: '3rem', marginTop: '1.5rem' }}>
+  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px', margin: 0 }}>
+    <thead>
+      <tr style={{ backgroundColor: '#112228', borderBottom: '1px solid #132724' }}>
+        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '25%' }}>Código</th>
+        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '75%' }}>Descripción</th>
+      </tr>
+    </thead>
+    <tbody style={{ color: '#a0b2bd', fontSize: '0.95rem' }}>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>200</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Sesión creada exitosamente</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>400</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Request inválido</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>401</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>No autorizado</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>422</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Datos inválidos</td>
+      </tr>
+      <tr>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>500</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Error interno</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,121 @@
+---
+id: webhooks
+title: Webhooks
+hide_title: true
+---
+
+<span style={{ color: 'var(--ifm-color-primary)', fontWeight: 800, fontSize: '0.85rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+  Conceptos Fundamentales
+</span>
+<h1 style={{ fontSize: '3.2rem', fontWeight: 900, marginBottom: '1rem', color: 'var(--ifm-color-primary)' }}>
+  Webhooks
+</h1>
+
+<p style={{ fontSize: '1.15rem', color: '#a0b2bd', marginBottom: '3.5rem', lineHeight: '1.6' }}>
+  Notificaciones automáticas de eventos en tiempo real.
+</p>
+
+## Propósito
+
+Los **webhooks** permiten recibir notificaciones automáticas de eventos relevantes sin consultas periódicas. SPIDI notifica en tiempo real sobre pagos completados, sesiones fallidas o expiradas.
+
+{/* Caja de Alerta (Warning) */}
+<div style={{ backgroundColor: '#0a161b', border: '1px solid #2a3a35', borderRadius: '12px', padding: '1.2rem', display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '3rem', marginTop: '1.5rem' }}>
+  <span style={{ fontSize: '1.2rem', color: '#ffd700' }}>⚠️</span>
+  <p style={{ margin: 0, fontSize: '0.95rem', color: '#a0b2bd' }}>
+    El webhook <strong style={{ color: '#fff' }}>no reemplaza</strong> la consulta del estado ( <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>GET /payment-sessions/&#123;session_id&#125;</code> ), sino que la <strong style={{ color: '#fff' }}>complementa</strong>. Los webhooks pueden tardar unos segundos.
+  </p>
+</div>
+
+## Principios de Diseño
+
+<div style={{ backgroundColor: '#0b161b', borderRadius: '12px', border: '1px solid #132724', overflowX: 'auto', marginBottom: '3rem', marginTop: '1.5rem' }}>
+  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px', margin: 0 }}>
+    <thead>
+      <tr style={{ backgroundColor: '#112228', borderBottom: '1px solid #132724' }}>
+        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '25%' }}>Regla</th>
+        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '75%' }}>Descripción</th>
+      </tr>
+    </thead>
+    <tbody style={{ color: '#a0b2bd', fontSize: '0.95rem' }}>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold', color: '#fff' }}>Idempotencia</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Incluyen <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>Idempotency-Key</code> , pueden reenviarse; procesamiento idempotente obligatorio</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold', color: '#fff' }}>Seguridad por firma</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>HMAC-SHA256 del body. Validar <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>SPIDI-Signature</code> y <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>SPIDI-Timestamp</code></td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold', color: '#fff' }}>Reintentos</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Si respuesta ≠ 2xx, reintento exponencial: 1m → 5m → 15m → 60m (máx. 4)</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold', color: '#fff' }}>Orden por sesión</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Eventos para misma <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>session_id</code> en orden temporal</td>
+      </tr>
+      <tr>
+        <td style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold', color: '#fff' }}>Timeout</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Responder en ≤ 5 segundos o se agenda reintento</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+## Headers Estándar
+
+* <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>Content-Type: application/json</code>
+* <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>spidi-signature: sha256-hash</code> — Firma HMAC-SHA256 para validar autenticidad
+* <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>spidi-timestamp: 2025-10-13T14:30:00Z</code> — ISO 8601
+* <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>idempotency-key: e77a9dbf-...</code> — UUID v4 para procesamiento idempotente
+
+## Eventos Principales
+
+<div style={{ backgroundColor: '#0b161b', borderRadius: '12px', border: '1px solid #132724', overflowX: 'auto', marginBottom: '3rem', marginTop: '1.5rem' }}>
+  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px', margin: 0 }}>
+    <thead>
+      <tr style={{ backgroundColor: '#112228', borderBottom: '1px solid #132724' }}>
+        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '40%' }}>Evento</th>
+        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '60%' }}>Descripción</th>
+      </tr>
+    </thead>
+    <tbody style={{ color: '#a0b2bd', fontSize: '0.95rem' }}>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>payment_session.created</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Se creó una nueva sesión de pago</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>payment_session.paid</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Cobro exitoso al pagador</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>payment_session.accredited</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Dinero enviado a todos los receptores</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>payment_session.partially_accredited</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Dinero enviado a uno de los receptores</td>
+      </tr>
+      <tr>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>payment_session.failed_accreditation</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Fallo en envío a receptores</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+## Seguridad: ¿Por qué validar la firma?
+
+Sin validación, un atacante podría enviar JSON falso a tu endpoint simulando un pago exitoso. Con HMAC-SHA256, tu servidor calcula el hash del body recibido y lo compara con <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>SPIDI-Signature</code>. Si no coinciden → <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>401 Unauthorized</code>.
+
+## ¿Por qué validar el timestamp?
+
+Previene **replay attacks diferidos**. Si un atacante reenvía un paquete viejo días después (cuando la Idempotency-Key ya expiró de tu caché), el timestamp fuera de rango (>5 min) permite rechazarlo.
+
+## Recomendaciones para Receptores
+
+* Validar firma y timestamp antes de procesar
+* Responder <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>200 OK</code> en menos de 2 segundos
+* Procesar en background si se necesita lógica adicional
+* Registrar <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>Idempotency-Key</code> para evitar reprocesos
+* Endpoint dedicado: <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>POST https://miapp.com/webhooks/spidi</code>

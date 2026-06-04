@@ -1,0 +1,229 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* You can override the default Infima variables here. */
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700;800;900&display=swap');
+
+
+:root {
+  --ifm-color-primary: #2e8555;
+  --ifm-color-primary-dark: #29784c;
+  --ifm-color-primary-darker: #277148;
+  --ifm-color-primary-darkest: #205d3b;
+  --ifm-color-primary-light: #33925d;
+  --ifm-color-primary-lighter: #359962;
+  --ifm-color-primary-lightest: #3cad6e;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --doc-sidebar-width: 340px !important;
+  --ifm-font-family-base: 'Inter', sans-serif; /* O la fuente que prefieras para texto */
+  --ifm-font-family-headings: 'Unbounded', sans-serif;
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme='dark'] {
+  --ifm-color-primary: #25c2a0;
+  --ifm-color-primary-dark: #21af90;
+  --ifm-color-primary-darker: #1fa588;
+  --ifm-color-primary-darkest: #1a8870;
+  --ifm-color-primary-light: #29d5b0;
+  --ifm-color-primary-lighter: #32d8b4;
+  --ifm-color-primary-lightest: #4fddbf;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+
+html {
+  background-color: #0b1418 !important;
+}
+
+
+/* =========================================
+   SIDEBAR (MENÚ LATERAL)
+   ========================================= */
+
+/* Color de fondo global del sidebar */
+.theme-doc-sidebar-menu {
+  background-color: #0b1418; /* Ajusta a tu tono de fondo exacto */
+}
+
+/* Títulos de las Categorías (Quick Start, Endpoints, etc) */
+.theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible > .menu__link {
+  font-size: 1.2rem; /* Un poco más pequeño */
+  font-weight: 700;   /* Le bajamos el grosor de 800 a 700 */
+  color: #ffffff;
+  letter-spacing: 0.3px; /* Separación sutil */
+  margin-top: 1.5rem; /* Reducimos el espacio superior */
+}
+
+/* NUEVO: Reducir el tamaño de las flechitas (Caret) y hacerlas más sutiles */
+.theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible::after {
+  transform: scale(0.6) !important; /* Las hacemos más pequeñas */
+  opacity: 0.5; /* Color más tenue */
+}
+
+/* Enlaces normales (sin seleccionar) */
+.menu__link {
+  color: #a0b2bd; /* Color secundario exacto del diseño */
+  font-size: 0.95rem;
+  border-radius: 0; /* Docusaurus los hace redondeados, los quitamos */
+  transition: all 0.2s ease;
+  font-weight: 400; /* Aseguramos que no queden en negrita */
+}
+
+/* Hover de los enlaces */
+.menu__link:hover {
+  color: #ffffff;
+  background-color: transparent;
+}
+
+/* ESTADO ACTIVO (El diseño principal de tu imagen) */
+.menu__link--active:not(.menu__link--sublist) {
+  background-color: #0b1a1c !important; /* Fondo sutilmente oscuro/verdoso */
+  color: var(--ifm-color-primary) !important; /* Texto verde esmeralda */
+  border-left: 3px solid var(--ifm-color-primary); /* La línea lateral */
+  padding-left: calc(1rem - 3px); /* Compensa el espacio del borde */
+  font-weight: 600;
+}
+
+/* =========================================
+   BADGES PARA ENDPOINTS (POST / GET)
+   ========================================= */
+
+/* Creamos la estructura base usando un pseudo-elemento ::before */
+.api-method > .menu__link::before {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 3px 6px;
+  border-radius: 4px;
+  margin-right: 12px;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  line-height: 1;
+}
+
+/* Estilo específico para los que tengan la clase 'post' */
+.api-method.post > .menu__link::before {
+  content: "POST";
+  background-color: #062b21; /* Fondo verde oscuro */
+  color: var(--ifm-color-primary); /* Texto esmeralda */
+}
+
+/* Estilo específico para los que tengan la clase 'get' */
+.api-method.get > .menu__link::before {
+  content: "GET";
+  background-color: #062b21;
+  color: var(--ifm-color-primary);
+}
+
+/* Si el endpoint está activo, iluminamos más el badge para que resalte */
+.api-method.menu__list-item--active > .menu__link::before {
+  background-color: var(--ifm-color-primary);
+  color: #0a1317;
+}
+
+
+/* =========================================
+   COLORES GLOBALES DEL TEMA OSCURO
+   ========================================= */
+[data-theme='dark'] {
+  /* Fondo principal de la página (el azul/verdoso oscuro) */
+  --ifm-background-color: #0b1418; 
+  /* Fondo de la barra superior y el menú lateral */
+  --ifm-background-surface-color: #081014; 
+  --ifm-navbar-background-color: #081014;
+}
+
+/* Ocultar las migas de pan (Breadcrumbs) para un look más limpio */
+.theme-doc-breadcrumbs {
+  display: none !important;
+}
+
+/* =========================================
+   BOTONES DE LA BARRA SUPERIOR (NAVBAR PILLS)
+   ========================================= */
+
+/* Ocultar la barra de búsqueda por defecto si no se usa */
+.navbar__search { display: none; }
+
+/* 1. Quitamos el fondo del contenedor izquierdo (el del logo) */
+.navbar__items {
+  background-color: transparent !important;
+  border: none !important;
+  margin-left: 0;
+}
+
+/* 2. El contenedor derecho (las pastillas) lo centramos y le damos el fondo */
+@media (min-width: 997px) {
+  .navbar__items--right {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #0d1a21 !important; /* Fondo oscuro del contenedor */
+    border-radius: 24px;       /* Bordes redondeados */
+    padding: 4px 6px;          /* Espacio interior */
+    border: 1px solid #132724; /* Borde sutil */
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* Estilo base para las pastillas individuales */
+.navbar__item.nav-pill {
+  background-color: transparent;
+  color: #889ba8;
+  border-radius: 20px;
+  padding: 6px 16px;
+  margin: 0 4px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Espacio entre el emoji y el texto */
+  border: 1px solid transparent; /* Preparamos el borde para que no salte al activarse */
+}
+
+/* Efecto al pasar el mouse (para los inactivos) */
+.navbar__item.nav-pill:not(.navbar__link--active):hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.05); /* Brillo sutil */
+}
+
+/* =========================================
+   ESTADO ACTIVO AUTOMÁTICO (Docusaurus Magic)
+   ========================================= */
+.navbar__link.nav-pill.navbar__link--active {
+  background-color: var(--ifm-color-primary) !important;
+  color: #081014 !important;
+  border: 1px solid #ffffff !important; /* Borde blanquito del diseño */
+  font-weight: 800 !important;
+  box-shadow: 0 0 15px rgba(0, 229, 155, 0.2); /* Tu brillo verde original que queda genial */
+  border-radius: 20px;
+  opacity: 1 !important;
+}
+
+/* =========================================
+   DEGRADADO SUPERIOR DE FONDO (PREMIUM FEEL)
+   ========================================= */
+
+/* Agregamos el degradado al fondo principal de la página */
+html[data-theme='dark'] body {
+  background-color: #0b1418 !important;
+  /* El degradado inicia en un verde oscuro/teal y se difumina al color base a los 500px */
+  background-image: linear-gradient(180deg, #0b2621 0%, #0b1418 500px) !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+}
+
+/* Ajustamos el navbar para que se fusione perfectamente con el degradado */
+.navbar {
+  background-color: rgba(8, 16, 20, 0.75) !important; /* Ligeramente transparente */
+  backdrop-filter: blur(12px); /* Efecto cristal (Glassmorphism) moderno */
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03); /* Línea divisoria súper sutil */
+  box-shadow: none !important; /* Quitamos la sombra dura por defecto */
+}

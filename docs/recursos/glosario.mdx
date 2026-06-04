@@ -1,0 +1,105 @@
+---
+id: glosario
+title: Glosario de campos
+hide_title: true
+---
+
+<h1 style={{ fontSize: '3.2rem', fontWeight: 900, marginBottom: '1rem', color: '#ffffff' }}>
+  Glosario de <span style={{ color: 'var(--ifm-color-primary)' }}>campos</span>
+</h1>
+
+<p style={{ fontSize: '1.15rem', color: '#a0b2bd', marginBottom: '3.5rem', lineHeight: '1.6' }}>
+  Diccionario técnico de campos y estructuras de respuesta.
+</p>
+
+<p style={{ color: '#a0b2bd', fontSize: '1.05rem', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+  El glosario completo contiene <strong style={{ color: '#fff' }}>267 campos</strong> documentados. Aquí los más usados:
+</p>
+
+<div style={{ backgroundColor: '#0b161b', borderRadius: '12px', border: '1px solid #132724', overflowX: 'auto', marginBottom: '2rem' }}>
+  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px', margin: 0 }}>
+    <thead>
+      <tr style={{ backgroundColor: '#112228', borderBottom: '1px solid #132724' }}>
+        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '25%' }}>Campo</th>
+        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '15%' }}>Tipo</th>
+        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '60%' }}>Descripción</th>
+      </tr>
+    </thead>
+    <tbody style={{ color: '#a0b2bd', fontSize: '0.95rem' }}>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>accessToken</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>string</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Token JWT para headers Authorization</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>agreement_id</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>uuid</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>ID único del acuerdo de liquidación</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>amount</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>number</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Monto en la moneda especificada (2 decimales)</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>amountVes</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>number</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Monto en bolívares (2 decimales)</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>amountVesCredited</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>number</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Monto neto acreditado tras comisiones</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>bank_code</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>string</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Código del banco (3-4 dígitos)</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>bank_reference_id</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>string</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Referencia bancaria del pago</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>bank_commissions_ves</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>decimal</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Comisión bancaria total en bolívares</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>currency</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>string</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Tipo de moneda (VES, USD_BCV, EUR_BCV, COP, USDT)</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>internal_reference</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>string</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Referencia interna para asociar a tu sistema</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>session_id</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>string</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>ID único de la sesión de pago</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>status</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>string</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Estado: pending, paid, failed, expired</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>stop_id</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>string</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>ID único de la Parada</td>
+      </tr>
+      <tr>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>payment_url</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>string</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>URL para que el pagador complete el pago</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p style={{ color: '#a0b2bd', fontSize: '0.95rem' }}>
+  Consulta el <a href="#" style={{ color: '#5b7a73', textDecoration: 'none' }}>glosario completo interactivo →</a>
+</p>

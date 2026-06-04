@@ -1,0 +1,105 @@
+---
+id: introduccion
+title: Introducción
+hide_title: true
+---
+
+<span style={{ color: 'var(--ifm-color-primary)', fontWeight: 800, fontSize: '0.85rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+  Conceptos Fundamentales
+</span>
+<h1 style={{ fontSize: '3.2rem', fontWeight: 900, marginBottom: '1rem', color: '#ffffff' }}>
+  Introducción
+</h1>
+
+<p style={{ fontSize: '1.15rem', color: '#a0b2bd', marginBottom: '3.5rem', lineHeight: '1.6' }}>
+  Todo lo necesario para empezar a recibir pagos de forma rápida, segura y simple usando la API de SPIDI.
+</p>
+
+## ¿Cómo integrar Pagos con SPIDI?
+
+SPIDI ofrece dos formas diferentes de integrar y recibir pagos. Cada una tiene particularidades en el flujo, el retorno del usuario y la forma de monitorear el estado del pago.
+
+### Botones de Pago SPIDI
+Ideales cuando deseas que tus usuarios puedan realizar pagos directamente en tu sitio web o aplicación móvil, sin salir de allí.
+
+### Solicitudes de Pago SPIDI
+Son la solución ideal para generar enlaces que puedes compartir por email, WhatsApp, SMS u otros canales para recibir pagos. Estos enlaces ya están preconfigurados con el monto e identificación.
+
+---
+
+## Base común de todos los flujos
+
+* Todos los procesos se basan en la creación de una **sesión de pago** a través del API, especificando un **monto** (en bolívares o moneda de referencia como dólar BCV, euro BCV, peso colombiano o USDT) y una **identificación**.
+* Al crear la sesión, SPIDI genera un **hash único** y el status es `pending`.
+* En la respuesta se devuelve un `payment_url`; deberás llevar al usuario a esa dirección.
+* El pago ocurre desde la página de SPIDI, con interfaz segura y vinculada visualmente con tu app.
+* SPIDI puede redirigir automáticamente al `success_url` o `failure_url`.
+* Cada sesión puede asociarse a un **acuerdo de liquidación** con reglas personalizadas, cuentas destino y splits.
+
+
+---
+
+## Diferencias entre Botón y Solicitud
+
+<div style={{ backgroundColor: '#0b161b', borderRadius: '12px', border: '1px solid #132724', overflowX: 'auto', marginBottom: '3rem', marginTop: '1.5rem' }}>
+  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px', margin: 0 }}>
+    <thead>
+      <tr style={{ backgroundColor: '#112228', borderBottom: '1px solid #132724' }}>
+        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '25%' }}>Característica</th>
+        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '37.5%' }}>Botón de Pago</th>
+        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '37.5%' }}>Solicitud de Pago</th>
+      </tr>
+    </thead>
+    <tbody style={{ color: '#a0b2bd', fontSize: '0.95rem' }}>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold', color: '#fff' }}>Ubicación del payment_url</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Se integra dentro de tu entorno</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Se envía por canales externos (QR, correo, WhatsApp, SMS)</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold', color: '#fff' }}>Momento de creación</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Al momento del clic del usuario</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Cuando se desee, programada o manual</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold', color: '#fff' }}>Duración</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>10 minutos</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Configurable o sin vencimiento</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold', color: '#fff' }}>Condiciones de pago</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Siempre el mismo día. Sin operaciones cercanas a medianoche.</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Cualquier día. Monto ajustado a tasa BCV vigente.</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold', color: '#fff' }}>Referencia interna</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>No requerida</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Requerida ( <code>internal_reference</code> )</td>
+      </tr>
+      <tr>
+        <td style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold', color: '#fff' }}>Estados</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <span style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)', padding: '4px 10px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '0.85rem' }}>pending</span>
+            <span style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)', padding: '4px 10px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '0.85rem' }}>paid</span>
+            <span style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)', padding: '4px 10px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '0.85rem' }}>failed</span>
+            <span style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)', padding: '4px 10px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '0.85rem' }}>expired</span>
+          </div>
+        </td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <span style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)', padding: '4px 10px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '0.85rem' }}>pending</span>
+            <span style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)', padding: '4px 10px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '0.85rem' }}>paid</span>
+            <span style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)', padding: '4px 10px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '0.85rem' }}>expired</span>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+## Paradas SPIDI
+
+En escenarios de suscripciones, pagos recurrentes o relaciones comerciales continuas, las **Paradas SPIDI** son el acompañante ideal de las Solicitudes de Pago. Una Parada es una URL única y permanente asignada a cada cliente, desde la cual puede consultar, atender y pagar sus solicitudes activas o anteriores.
+
+Desde una Parada, el cliente puede: visualizar solicitudes pendientes/pagadas/vencidas, pagar directamente sin depender de nuevos enlaces, y consultar su historial de pagos.
