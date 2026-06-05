@@ -1,0 +1,55 @@
+---
+id: proceso-descarte-anulacion
+title: Proceso de Descarte y Anulación de Pago
+---
+
+# Proceso de Descarte y Anulación de Pago
+
+En el ciclo de vida de una transacción existen dos mecanismos distintos para revertir una orden, dependiendo del momento en que se solicite:
+
+1. **Descarte (Discard / pre-confirmación POS):** Se descarta la orden **antes** de que el Terminal POS confirme el pago. El estado resultante es `DISCARDED`.
+2. **Anulación (Void / post-confirmación POS):** Se solicita la anulación de un pago **ya confirmado** por el Terminal POS. El flujo pasa por los estados `VOID_PENDING` ➔ `VOIDED`.
+
+---
+
+## 1. Descarte de Orden (Pre-POS)
+
+Si el sistema externo decide descartar una orden que está en estado `PENDING` (es decir, el POS aún no ha confirmado el cobro), se marca como `DISCARDED`.
+
+* **Petición:** `POST /api/v1/merchants/{merchantId}/transactions/{orderId}/invalidation`
+* **Seguridad:** Requiere Autorización Bearer (`Authorization: Bearer <token>`).
+* **Estado resultante:** `DISCARDED`
+
+:::caution Importante
+El estado `DISCARDED` es **sobrescribible**. Si se da una condición de carrera donde el sistema merchant descarta la orden pero el POS ya procesó el cobro localmente, al enviar la confirmación de pago (`POST /commit`), el estado pasará de `DISCARDED` directamente a `PAID`, garantizando que los fondos cobrados queden correctamente registrados y sobrescribiendo el descarte anterior.
+:::
+
+---
+
+## 2. Anulación de Pago (Post-POS)
+
+Si la transacción ya fue confirmada por el POS (estado `PAID`) y el sistema externo necesita revertirla, se solicita una anulación (Void). La orden pasará a `VOID_PENDING` a la espera de que el Terminal POS confirme la anulación.
+
+* **Petición:** `POST /api/v1/merchants/{merchantId}/transactions/{orderId}/invalidation`
+* **Seguridad:** Requiere Autorización Bearer (`Authorization: Bearer <token>`).
+* **Estado resultante:** `VOID_PENDING`
+
+### 2.1 Consultar Anulaciones Pendientes (Merchant vs POS)
+
+Existen dos formas de localizar órdenes pendientes de anulación:
+
+* **Desde el Admin (Merchant):** `GET /api/v1/merchants/{merchantId}/transactions?status=VOID_PENDING` *(Requiere Autenticación Bearer)*.
+* **Desde el Terminal (POS):** `GET /api/v1/pos-terminals/{serialNumber}/transactions?status=VOID_PENDING` *(Requiere Firma HMAC, no realiza login)*.
+
+### 2.2 Confirmar la Anulación (Terminal POS)
+
+Cuando el Terminal POS detecta esta transacción en estado `VOID_PENDING`, debe proceder a confirmar la anulación (Void).
+
+:::info Seguridad de las Operaciones
+Para notificar válidamente la confirmación de la anulación, el POS debe certificar la petición. Consulta la [Guía de Comunicación con POS](./comunicaciones.mdx) para ver qué medida de seguridad criptográfica la protege.
+:::
+
+* **Petición:** `POST /api/v1/pos-terminals/{serialNumber}/transactions/{orderId}/invalidation/commit`
+* **Seguridad:** Requiere Firma HMAC (`x-pos-signature`, `x-pos-timestamp`). Para esta operación sin cuerpo, la firma usa `""` como body. Ver [Guía de Comunicación con POS](./comunicaciones.mdx). *(Sin cuerpo/Payload vacío)*
+
+La operación quedará terminada y eliminada del flujo bajo el estatus final de `VOIDED`.

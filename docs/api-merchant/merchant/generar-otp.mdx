@@ -1,0 +1,91 @@
+---
+id: generar-otp
+title: Generar OTP para Pairing
+hide_title: true
+---
+
+<span style={{ color: 'var(--ifm-color-primary)', fontWeight: 800, fontSize: '0.85rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+  Merchants
+</span>
+<h1 style={{ fontSize: '3.2rem', fontWeight: 900, marginBottom: '1rem', color: 'var(--ifm-color-primary)' }}>
+  Generar OTP para Pairing
+</h1>
+
+<p style={{ fontSize: '1.15rem', color: '#a0b2bd', marginBottom: '2.5rem', lineHeight: '1.6' }}>
+  Solicita vincular un sistema terminal con el Serial de Hardware y genera un código de activación (OTP).
+</p>
+
+## Endpoint
+
+{/* Tarjeta del Endpoint */}
+<div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem', border: '1px solid rgba(128, 128, 128, 0.2)' }}>
+  <div style={{ backgroundColor: 'rgba(37, 194, 160, 0.1)', padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem', overflowX: 'auto' }}>
+    <span style={{ backgroundColor: 'var(--ifm-color-primary)', color: '#000', fontWeight: 'bold', padding: '4px 10px', borderRadius: '6px', fontSize: '0.85rem', fontFamily: 'monospace' }}>POST</span>
+    <code style={{ backgroundColor: 'transparent', color: 'var(--ifm-font-color-base)', fontWeight: 'bold', fontSize: '0.95rem', border: 'none', padding: 0, whiteSpace: 'nowrap' }}>https://dev.api.spuntodeventa.com/api/v1/merchants/:merchantId/pos-terminals/:serialNumber/pairing</code>
+  </div>
+</div>
+
+## Autenticación Requerida
+
+<div style={{ backgroundColor: 'var(--ifm-background-surface-color)', border: '1px solid rgba(128, 128, 128, 0.2)', borderRadius: '12px', padding: '1.2rem', marginBottom: '3rem' }}>
+  <p style={{ margin: '0 0 0.5rem 0', fontWeight: 'bold', fontSize: '1.05rem', color: 'var(--ifm-font-color-base)' }}>Bearer / Token: BearerAuth</p>
+  <p style={{ margin: '0 0 0.5rem 0', color: '#a0b2bd', fontSize: '0.95rem' }}>Requiere el uso del token obtenido en <code style={{ backgroundColor: 'rgba(128,128,128,0.1)' }}>/auth/login</code></p>
+  <p style={{ margin: 0, color: '#a0b2bd', fontSize: '0.95rem' }}><strong style={{ color: 'var(--ifm-font-color-base)' }}>Esquema:</strong> bearer (JWT)</p>
+</div>
+
+## Request
+
+<div style={{ display: 'inline-block', border: '1px solid var(--ifm-color-primary)', color: 'var(--ifm-color-primary)', padding: '4px 12px', borderRadius: '16px', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+  APPLICATION/JSON
+</div>
+
+<div style={{ marginBottom: '1rem', fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--ifm-font-color-base)' }}>
+  BODY <span style={{ color: '#ff4d4d', marginLeft: '4px' }}>REQUIRED</span>
+</div>
+
+{/* Lista de Parámetros del Request */}
+<ul style={{ listStyle: 'none', padding: 0, margin: 0, backgroundColor: 'var(--ifm-background-surface-color)', borderRadius: '12px', border: '1px solid rgba(128, 128, 128, 0.2)', padding: '1.5rem', marginBottom: '3rem' }}>
+  <li>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+      <div>
+        <code style={{ color: 'var(--ifm-font-color-base)', backgroundColor: 'transparent', padding: 0, fontSize: '1.05rem', fontWeight: 'bold' }}>serial</code> <span style={{ color: '#a0b2bd', fontSize: '0.9rem' }}>string</span>
+      </div>
+      <span style={{ color: '#ff4d4d', fontSize: '0.75rem', fontWeight: 'bold' }}>REQUIRED</span>
+    </div>
+    <p style={{ color: '#a0b2bd', margin: '0', fontSize: '0.95rem' }}>Serial de Hardware del dispositivo POS.</p>
+  </li>
+</ul>
+
+---
+
+## Code Example
+
+```javascript title="Node.js (Axios)"
+const axios = require('axios');
+let data = JSON.stringify({
+  "serial": "string"
+});
+
+let config = {
+  method: 'post',
+  maxBodyLength: Infinity,
+  url: '[https://dev.api.spuntodeventa.com/api/v1/merchants/:merchantId/pos-terminals/:serialNumber/pairing](https://dev.api.spuntodeventa.com/api/v1/merchants/:merchantId/pos-terminals/:serialNumber/pairing)',
+  headers: { 
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer <token>'
+  },
+  data: data
+};
+
+axios.request(config)
+.then((response) => {
+  console.log(JSON.stringify(response.data));
+})
+.catch((error) => {
+  console.log(error);
+});
+
+
+## Responses
+<span style={{ backgroundColor: '#28a745', color: '#fff', padding: '4px 12px', borderRadius: '6px', fontSize: '0.9rem', marginRight: '10px' }}>200 Código de activación (OTP) generado exitosamente.
+<span style={{ backgroundColor: '#dc3545', color: '#fff', padding: '4px 12px', borderRadius: '6px', fontSize: '0.9rem', marginRight: '10px' }}>400 Datos inválidos.

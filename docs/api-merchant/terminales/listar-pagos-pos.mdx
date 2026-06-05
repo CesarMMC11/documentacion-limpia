@@ -1,0 +1,186 @@
+---
+id: listar-pagos-pos
+title: Listar pagos del POS
+hide_title: true
+---
+
+<span style={{ color: 'var(--ifm-color-primary)', fontWeight: 800, fontSize: '0.85rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+  Terminales
+</span>
+<h1 style={{ fontSize: '3.2rem', fontWeight: 900, marginBottom: '1rem', color: 'var(--ifm-color-primary)' }}>
+  Listar pagos del POS
+</h1>
+
+<p style={{ fontSize: '1.15rem', color: '#a0b2bd', marginBottom: '2.5rem', lineHeight: '1.6' }}>
+  Listar pagos del POS
+</p>
+
+## Endpoint
+
+{/* Tarjeta del Endpoint */}
+<div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem', border: '1px solid rgba(128, 128, 128, 0.2)' }}>
+  <div style={{ backgroundColor: 'rgba(164, 203, 56, 0.1)', padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem', overflowX: 'auto' }}>
+    <span style={{ backgroundColor: '#A4CB38', color: '#000', fontWeight: 'bold', padding: '4px 10px', borderRadius: '6px', fontSize: '0.85rem', fontFamily: 'monospace' }}>GET</span>
+    <code style={{ backgroundColor: 'transparent', color: 'var(--ifm-font-color-base)', fontWeight: 'bold', fontSize: '0.95rem', border: 'none', padding: 0, whiteSpace: 'nowrap' }}>https://dev.api.spuntodeventa.com/api/v1/pos-terminals/:serialNumber/transactions</code>
+  </div>
+</div>
+
+## Autenticación Requerida
+
+<div style={{ backgroundColor: 'var(--ifm-background-surface-color)', border: '1px solid rgba(128, 128, 128, 0.2)', borderRadius: '12px', padding: '1.2rem', marginBottom: '3rem' }}>
+  <p style={{ margin: '0 0 0.5rem 0', fontWeight: 'bold', fontSize: '1.05rem', color: 'var(--ifm-font-color-base)' }}>apiKey: POSSignature</p>
+  <p style={{ margin: '0 0 0.5rem 0', color: '#a0b2bd', fontSize: '0.95rem' }}>Requiere el uso de la firma HMAC para verificar la autenticidad de la solicitud</p>
+  <p style={{ margin: 0, color: '#a0b2bd', fontSize: '0.95rem' }}><strong style={{ color: 'var(--ifm-font-color-base)' }}>Header:</strong> x-pos-signature</p>
+</div>
+
+## Request
+
+<div style={{ marginBottom: '1rem', fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--ifm-font-color-base)', textTransform: 'uppercase' }}>
+  PATH PARAMETERS
+</div>
+
+<ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem 0', backgroundColor: 'var(--ifm-background-surface-color)', borderRadius: '12px', border: '1px solid rgba(128, 128, 128, 0.2)', padding: '1.5rem' }}>
+  <li>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+      <div>
+        <code style={{ color: 'var(--ifm-font-color-base)', backgroundColor: 'transparent', padding: 0, fontSize: '1.05rem', fontWeight: 'bold' }}>serialNumber</code> <span style={{ color: '#a0b2bd', fontSize: '0.9rem' }}>string</span>
+      </div>
+      <span style={{ color: '#ff4d4d', fontSize: '0.75rem', fontWeight: 'bold' }}>REQUIRED</span>
+    </div>
+    <p style={{ color: '#a0b2bd', margin: '0', fontSize: '0.95rem' }}>Identificador / Serial del terminal.</p>
+  </li>
+</ul>
+
+<div style={{ marginBottom: '1rem', fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--ifm-font-color-base)', textTransform: 'uppercase' }}>
+  QUERY PARAMETERS
+</div>
+
+<ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem 0', backgroundColor: 'var(--ifm-background-surface-color)', borderRadius: '12px', border: '1px solid rgba(128, 128, 128, 0.2)', padding: '1.5rem' }}>
+  <li>
+    <div>
+      <code style={{ color: 'var(--ifm-font-color-base)', backgroundColor: 'transparent', padding: 0, fontSize: '1.05rem', fontWeight: 'bold' }}>status</code> <span style={{ color: '#a0b2bd', fontSize: '0.9rem' }}>object</span>
+    </div>
+    <p style={{ color: '#a0b2bd', margin: '0.5rem 0 0 0', fontSize: '0.95rem' }}>Filtro dinámico (LHS Brackets) para filtrar transacciones por estado. Ej: <code style={{ backgroundColor: 'rgba(128,128,128,0.1)' }}>?status=PENDING</code></p>
+  </li>
+</ul>
+
+<div style={{ display: 'inline-block', border: '1px solid var(--ifm-color-primary)', color: 'var(--ifm-color-primary)', padding: '4px 12px', borderRadius: '16px', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+  APPLICATION/JSON
+</div>
+
+<div style={{ marginBottom: '1rem', fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--ifm-font-color-base)' }}>
+  BODY <span style={{ color: '#ff4d4d', marginLeft: '4px' }}>REQUIRED</span>
+</div>
+
+{/* Lista de Parámetros del Request Body (Tal cual se muestra en la documentación original) */}
+<ul style={{ listStyle: 'none', padding: 0, margin: 0, backgroundColor: 'var(--ifm-background-surface-color)', borderRadius: '12px', border: '1px solid rgba(128, 128, 128, 0.2)', padding: '1.5rem', marginBottom: '3rem' }}>
+  
+  <li style={{ borderBottom: '1px solid rgba(128, 128, 128, 0.2)', paddingBottom: '1.2rem', marginBottom: '1.2rem' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+      <div>
+        <code style={{ color: 'var(--ifm-font-color-base)', backgroundColor: 'transparent', padding: 0, fontSize: '1.05rem', fontWeight: 'bold' }}>orderId</code> <span style={{ color: '#a0b2bd', fontSize: '0.9rem' }}>string &lt;uuid&gt;</span>
+      </div>
+      <span style={{ color: '#ff4d4d', fontSize: '0.75rem', fontWeight: 'bold' }}>REQUIRED</span>
+    </div>
+    <p style={{ color: '#a0b2bd', margin: '0 0 0.5rem 0', fontSize: '0.95rem' }}>Identificador único de la orden generado por el comercio.</p>
+    <p style={{ margin: 0, fontSize: '0.9rem' }}><strong style={{ color: 'var(--ifm-font-color-base)' }}>Example:</strong> <code style={{ backgroundColor: 'rgba(128,128,128,0.1)' }}>3ddc4cfb-c09a-43de-92c1-e4a069732e90</code></p>
+  </li>
+
+  <li style={{ borderBottom: '1px solid rgba(128, 128, 128, 0.2)', paddingBottom: '1.2rem', marginBottom: '1.2rem' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+      <div>
+        <code style={{ color: 'var(--ifm-font-color-base)', backgroundColor: 'transparent', padding: 0, fontSize: '1.05rem', fontWeight: 'bold' }}>amountReference</code> <span style={{ color: '#a0b2bd', fontSize: '0.9rem' }}>number &lt;double&gt;</span>
+      </div>
+      <span style={{ color: '#ff4d4d', fontSize: '0.75rem', fontWeight: 'bold' }}>REQUIRED</span>
+    </div>
+    <p style={{ color: '#a0b2bd', margin: '0 0 0.5rem 0', fontSize: '0.95rem' }}>Monto de referencia en la moneda especificada en currencyReference con 2 decimales.</p>
+    <p style={{ margin: 0, fontSize: '0.9rem' }}><strong style={{ color: 'var(--ifm-font-color-base)' }}>Example:</strong> <code style={{ backgroundColor: 'rgba(128,128,128,0.1)' }}>100.001</code></p>
+  </li>
+
+  <li style={{ borderBottom: '1px solid rgba(128, 128, 128, 0.2)', paddingBottom: '1.2rem', marginBottom: '1.2rem' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+      <div>
+        <code style={{ color: 'var(--ifm-font-color-base)', backgroundColor: 'transparent', padding: 0, fontSize: '1.05rem', fontWeight: 'bold' }}>currencyReference</code> <span style={{ color: '#a0b2bd', fontSize: '0.9rem' }}>string</span>
+      </div>
+    </div>
+    <p style={{ color: '#a0b2bd', margin: '0 0 0.5rem 0', fontSize: '0.95rem' }}>Moneda de referencia que se fija para el pago. Usada para calcular el monto en bolívares con la tasa vigente.</p>
+    <p style={{ margin: 0, fontSize: '0.9rem' }}><strong style={{ color: 'var(--ifm-font-color-base)' }}>Possible values:</strong> <code style={{ backgroundColor: 'rgba(128,128,128,0.1)' }}>[ USD, EUR, COP, USDT, VES ]</code></p>
+  </li>
+
+  <li style={{ borderBottom: '1px solid rgba(128, 128, 128, 0.2)', paddingBottom: '1.2rem', marginBottom: '1.2rem' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+      <div>
+        <code style={{ color: 'var(--ifm-font-color-base)', backgroundColor: 'transparent', padding: 0, fontSize: '1.05rem', fontWeight: 'bold' }}>allowAmountChange</code> <span style={{ color: '#a0b2bd', fontSize: '0.9rem' }}>boolean</span>
+      </div>
+    </div>
+    <p style={{ color: '#a0b2bd', margin: '0 0 0.5rem 0', fontSize: '0.95rem' }}>Si es true, permite editar el monto en el POS.</p>
+    <p style={{ margin: 0, fontSize: '0.9rem' }}><strong style={{ color: 'var(--ifm-font-color-base)' }}>Default value:</strong> <code style={{ backgroundColor: 'rgba(128,128,128,0.1)' }}>false</code></p>
+  </li>
+
+  <li style={{ borderBottom: '1px solid rgba(128, 128, 128, 0.2)', paddingBottom: '1.2rem', marginBottom: '1.2rem' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+      <div>
+        <code style={{ color: 'var(--ifm-font-color-base)', backgroundColor: 'transparent', padding: 0, fontSize: '1.05rem', fontWeight: 'bold' }}>clientIdentification</code> <span style={{ color: '#a0b2bd', fontSize: '0.9rem' }}>string</span>
+      </div>
+    </div>
+    <p style={{ color: '#a0b2bd', margin: '0 0 0.5rem 0', fontSize: '0.95rem' }}>Cédula o RIF del cliente.</p>
+    <p style={{ margin: 0, fontSize: '0.9rem' }}><strong style={{ color: 'var(--ifm-font-color-base)' }}>Example:</strong> <code style={{ backgroundColor: 'rgba(128,128,128,0.1)' }}>V14143800</code></p>
+  </li>
+
+  <li style={{ borderBottom: '1px solid rgba(128, 128, 128, 0.2)', paddingBottom: '1.2rem', marginBottom: '1.2rem' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+      <div>
+        <code style={{ color: 'var(--ifm-font-color-base)', backgroundColor: 'transparent', padding: 0, fontSize: '1.05rem', fontWeight: 'bold' }}>terminalSerial</code> <span style={{ color: '#a0b2bd', fontSize: '0.9rem' }}>string</span>
+      </div>
+    </div>
+    <p style={{ color: '#a0b2bd', margin: '0 0 0.5rem 0', fontSize: '0.95rem' }}>Serial del terminal físico.</p>
+    <p style={{ margin: 0, fontSize: '0.9rem' }}><strong style={{ color: 'var(--ifm-font-color-base)' }}>Example:</strong> <code style={{ backgroundColor: 'rgba(128,128,128,0.1)' }}>98202003219630</code></p>
+  </li>
+
+  <li>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+      <div>
+        <code style={{ color: 'var(--ifm-font-color-base)', backgroundColor: 'transparent', padding: 0, fontSize: '1.05rem', fontWeight: 'bold' }}>deeplinkConfig</code> <span style={{ color: '#a0b2bd', fontSize: '0.9rem' }}>object</span>
+      </div>
+    </div>
+  </li>
+
+</ul>
+
+---
+
+## Code Example
+
+```javascript title="Node.js (Axios)"
+const axios = require('axios');
+let data = JSON.stringify({
+  "orderId": "3ddc4cfb-c09a-43de-92c1-e4a069732e90",
+  "amountReference": "100.001",
+  "currencyReference": "USD",
+  "allowAmountChange": false,
+  "clientIdentification": "V14143800",
+  "terminalSerial": "98202003219630",
+  "deeplinkConfig": {
+    "returnPackage": "com.tuapp.kiosco",
+    "returnActivity": "com.tuapp.kiosco.PaymentResultActivity"
+  }
+});
+
+let config = {
+  method: 'get',
+  maxBodyLength: Infinity,
+  url: '[https://dev.api.spuntodeventa.com/api/v1/pos-terminals/:serialNumber/transactions](https://dev.api.spuntodeventa.com/api/v1/pos-terminals/:serialNumber/transactions)',
+  headers: { 
+    'Content-Type': 'application/json',
+    'x-pos-signature': '<FIRMA_HMAC>'
+  },
+  data: data
+};
+
+axios.request(config)
+.then((response) => {
+  console.log(JSON.stringify(response.data));
+})
+.catch((error) => {
+  console.log(error);
+});

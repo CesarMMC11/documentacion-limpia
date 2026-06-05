@@ -1,0 +1,70 @@
+---
+id: introduccion
+title: Introduction
+hide_title: true
+---
+
+<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+  <div>
+    <span style={{ color: 'var(--ifm-color-primary)', fontWeight: 800, fontSize: '0.85rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+      API Merchant Aplicativo Financiero
+    </span>
+    <h1 style={{ fontSize: '3.2rem', fontWeight: 900, margin: '0.5rem 0', color: 'var(--ifm-color-primary)' }}>
+      API Merchants Finantial
+    </h1>
+  </div>
+  
+  {/* Botón visual de versión */}
+  <div style={{ backgroundColor: 'var(--ifm-background-surface-color)', border: '1px solid rgba(128, 128, 128, 0.2)', padding: '4px 12px', borderRadius: '16px', fontSize: '0.8rem', fontWeight: 'bold' }}>
+    Version: 1.0.0
+  </div>
+</div>
+
+<p style={{ fontSize: '1.15rem', color: '#a0b2bd', marginBottom: '3.5rem', lineHeight: '1.6' }}>
+  Integración de puntos de venta y servicios merchant con Seguridad JWT.
+</p>
+
+## Authentication
+
+{/* Pastillas de métodos de autenticación */}
+<div style={{ display: 'flex', gap: '12px', marginBottom: '2rem', flexWrap: 'wrap' }}>
+  <span style={{ border: '1px solid var(--ifm-color-primary)', color: 'var(--ifm-color-primary)', padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 'bold', backgroundColor: 'rgba(37, 194, 160, 0.05)' }}>
+    HTTP: Bearer Auth
+  </span>
+  <span style={{ border: '1px solid rgba(128, 128, 128, 0.3)', color: '#a0b2bd', padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+    HTTP: Basic Auth
+  </span>
+  <span style={{ border: '1px solid rgba(128, 128, 128, 0.3)', color: '#a0b2bd', padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+    API Key: POSSignature
+  </span>
+</div>
+
+<p style={{ marginBottom: '2rem', fontSize: '1.05rem' }}>
+  Requiere el uso de el token obtenido en <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)', fontWeight: 'bold' }}>/auth/login</code>
+</p>
+
+{/* Tabla de especificaciones de seguridad */}
+<div style={{ backgroundColor: 'var(--ifm-background-surface-color)', borderRadius: '12px', border: '1px solid rgba(128, 128, 128, 0.2)', overflowX: 'auto', marginBottom: '4rem', maxWidth: '600px' }}>
+  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', margin: 0 }}>
+    <tbody style={{ fontSize: '0.95rem', lineHeight: '1.6' }}>
+      <tr style={{ borderBottom: '1px solid rgba(128, 128, 128, 0.2)' }}>
+        <td style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold', width: '45%' }}>Security Scheme Type:</td>
+        <td style={{ padding: '1.2rem 1.5rem', color: '#a0b2bd' }}>http</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid rgba(128, 128, 128, 0.2)' }}>
+        <td style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold' }}>HTTP Authorization Scheme:</td>
+        <td style={{ padding: '1.2rem 1.5rem', color: '#a0b2bd' }}>bearer</td>
+      </tr>
+      <tr>
+        <td style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold' }}>Bearer format:</td>
+        <td style={{ padding: '1.2rem 1.5rem', color: '#a0b2bd' }}>JWT</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+## Contact
+
+<p style={{ fontSize: '1.05rem', color: '#a0b2bd' }}>
+  Soporte de Integración:
+</p>

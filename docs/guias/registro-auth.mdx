@@ -1,0 +1,82 @@
+---
+id: registro-auth
+title: Registro y Autenticación de Merchant
+---
+
+# Registro y Autenticación de Merchant
+
+El primer paso para integrarte con la API Merchant de SPIDI es crear (registrar) la cuenta de tu comercio y obtener las credenciales de acceso (Token JWT) requeridas por la mayoría de los servicios de la plataforma.
+
+---
+
+## 1. Registro de Comercio (Onboarding)
+
+Este endpoint público permite registrar un nuevo comercio en la plataforma, proporcionando su información legal y las credenciales de administrador (email y contraseña) que usarán para acceder al sistema.
+
+* **Petición:** `POST /api/v1/merchants`
+* **Autorización:** Ninguna (Público)
+
+### Ejemplo de Petición
+
+```json
+{
+  "legalName": "Comercio de Ejemplo C.A.",
+  "taxId": "J-12345678-9",
+  "email": "contacto@comercio.com",
+  "password": "Password123!",
+  "phone": "+584121234567",
+  "address": "Calle Principal, Edificio 1, Caracas"
+}
+```
+
+:::warning Aviso
+Ten en cuenta que el `email` y `password` que envíes en esta petición serán los mismos que debes utilizar posteriormente para autenticarte cada vez que requieras un token de sesión.
+:::
+
+---
+
+## 2. Iniciar Sesión (Obtener Token JWT)
+
+Una vez tu comercio esté registrado, deberás autenticarte entregando tu correo y contraseña para intercambiarlos por un **Access Token (JWT)**. Este token será indispensable para incluirlo en la cabecera `Authorization: Bearer <tú-token>` en cualquier otra petición de la API.
+
+* **Petición:** `POST /api/v1/merchants/auth/login`
+* **Autorización:** Ninguna (Público)
+
+### Ejemplo de Petición
+
+```json
+{
+  "email": "contacto@comercio.com",
+  "password": "Password123!"
+}
+```
+
+### Respuesta Exitosa (200 OK)
+
+Dicha llamada procesará las credenciales y, de ser válidas, el servidor emitirá un token con tiempo de expiración y devolverá el identificador del comercio (`merchantId`).
+
+```json
+{
+  "title": "Autenticación Exitosa",
+  "detail": "Se ha generado el token de acceso correctamente y el usuario ha sido autenticado.",
+  "data": {
+    "accessToken": "eyJhbGciOiJIUzI1...",
+    "tokenType": "Bearer",
+    "expiresIn": 3600,
+    "merchantId": "MERCHANT-998877"
+  }
+}
+```
+
+:::tip Tip
+Este token tiene un tiempo de vida expresado en la propiedad `expiresIn` (segundos). Cuando esté por vencerse, recuerda volver a llamar el endpoint de login para evitar rechazos (401 Unauthorized).
+:::
+
+---
+
+## Referencias API (Swagger)
+
+Puedes ver todos los detalles técnicos o realizar consultas interactivas revisando las referencias en la especificación de la API:
+
+* [POST /api/v1/merchants](../../api-merchant/merchant/registrarte.mdx)
+* [POST /api/v1/merchants/auth/login](../../api-merchant/merchant/iniciar-sesion.mdx)

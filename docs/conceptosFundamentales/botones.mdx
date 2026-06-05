@@ -7,7 +7,7 @@ hide_title: true
 <span style={{ color: 'var(--ifm-color-primary)', fontWeight: 800, fontSize: '0.85rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
   Conceptos Fundamentales
 </span>
-<h1 style={{ fontSize: '3.2rem', fontWeight: 900, marginBottom: '1rem', color: '#ffffff' }}>
+<h1 style={{ fontSize: '3.2rem', fontWeight: 900, marginBottom: '1rem', color: 'var(--ifm-color-primary)' }}>
   Botones de <span style={{ color: 'var(--ifm-color-primary)' }}>Pago</span>
 </h1>
 
@@ -17,94 +17,99 @@ hide_title: true
 
 ## ¿Qué son los botones de pago SPIDI?
 
-Los **Botones de Pago SPIDI** permiten que tus usuarios paguen desde **cualquier banco venezolano o Binance Pay (USDT)** sin salir de tu plataforma. Habilita todos los medios de pago inmediatos: **débito bancario, Pago Móvil y Binance Pay**, con **liquidación directa en bolívares**.
+Los **Botones de Pago SPIDI** son la forma más directa de recibir pagos inmediatos desde tu sitio web o aplicación móvil, permitiendo que tus usuarios paguen desde **cualquier banco venezolano o de Binance Pay (USDT)** sin salir de allí.
 
-## Tipos de botones
+El botón SPIDI te permite habilitar todos los medios de pago inmediatos del país: **débito bancario, Pago Móvil y Binance Pay (USDT)**, con **liquidación directa en bolívares**.
 
-* 🖥️ **Botón SPIDI para Web**: para sitios o aplicaciones web, pago en el navegador.
-* 📱 **Botón SPIDI para App**: para apps móviles (Android, iOS, híbridos), con deeplinks o WebView.
+## Tipos de botones de pago
 
-## Base común de todos los flujos
+Los botones pueden integrarse en dos modalidades, según el entorno en el que desees implementarlos:
 
-* Sesión de pago creada via API con monto e identificación
-* SPIDI genera un **hash único**, status inicial: `pending`
-* Vida útil: **10 minutos**
-* Estados: `pending`, `paid`, `failed`, `expired`
-* Estado `failed` termina la sesión definitivamente
-* No se permiten operaciones cerca de medianoche
+* 🖥️ **Botón SPIDI para Web:** para sitios o aplicaciones web, donde el pago ocurre directamente en el navegador.
+* 📱 **Botón SPIDI para App:** pensado para aplicaciones móviles (Android, iOS o frameworks híbridos), con soporte para deeplinks o navegación WebView.
+
+---
+
+## Base común de todos los flujos de Botones de pago
+
+* Todos los procesos se basan en la **creación de una sesión de pago** a través del API de SPIDI, especificando un **monto** (en bolívares o en una moneda de referencia como dólar BCV, euro BCV, peso colombiano o USDT) y una **identificación** que permite asociar la transacción con tu sistema de origen.
+* Al crear la sesión, SPIDI genera un **hash único** que identifica de forma segura cada operación, y el estado inicial (`status`) del enlace es <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>pending</code>.
+* La sesión tiene una vida útil de **10 minutos**, tras lo cual caduca automáticamente si no se completa el pago.
+* Los posibles estados de una sesión son: <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>pending</code>, <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>paid</code>, <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>failed</code>, <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>expired</code>.
+  * Un estado <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>failed</code> termina definitivamente la sesión de pago.
+* El pago siempre ocurre **el mismo día**; en horas cercanas a la medianoche no se permiten operaciones, para garantizar la correcta conciliación entre sistemas bancarios.
+* En la respuesta se devuelve un <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>payment_url</code>, y deberás redirigir al usuario que va a pagar a esa dirección para completar el proceso.
+* Una vez finalizado el pago, **SPIDI puede redirigir automáticamente** al usuario hacia la `success_url` o `failure_url`, en caso de haber sido configuradas.
+* Un **segundo endpoint** permite **consultar el estado** de la sesión de pago, conocer su resultado y, opcionalmente, sincronizarlo con tu plataforma mediante **webhooks** o consultas directas.
+* Cada sesión puede asociarse a un **acuerdo de liquidación**, donde se definen las **reglas personalizadas de liquidación, las cuentas destino y los splits específicos** entre varios receptores.
+* Puedes habilitar que la sesión ofrezca distintas **opciones de pago inmediatas: débito bancario, Pago Móvil o pago con criptomonedas (Binance Pay)**, todas con **liquidación directa en bolívares**.
 
 ---
 
 ## Botón SPIDI para Web
 
-### Estrategia 1 — Misma pestaña (recomendada)
-**Flujo:** Tu web → SPIDI (misma pestaña) → Redirección automática a tu web
+El Botón SPIDI para Web permite integrar pagos inmediatos en cualquier sitio o aplicación web, ofreciendo a los usuarios una experiencia de pago fluida, segura y dentro del navegador. 
+Dependiendo de cómo desees abrir la página de pago de SPIDI, existen dos estrategias posibles de integración.
 
-1. Usuario hace clic en botón de pago
-2. Tu backend crea sesión con `success_url`, `failure_url`, y opcionalmente `webhook_url`
-3. SPIDI responde con `session_id`
-4. Tu frontend construye `payment_url` → `{url_base}/{session_id}`
-5. Rediriges con `window.location.href`
-6. Tras pago, SPIDI redirige a `{success_url}?session_id=sess_abc123`
-7. Tu app lee el `session_id` y consulta endpoint de estado para validar
+### Estrategia 1 — Misma pestaña (recomendada)
+**Flujo:**
+Tu aplicación web → SPIDI (misma pestaña) → Redirección automática a tu web (éxito o fallo)
+
+**Pasos:**
+1. El usuario hace clic en el botón de pago en tu web.
+2. Tu backend crea una sesión de pago con SPIDI mediante el endpoint de creación, incluyendo:
+   * `success_url`: URL de éxito (obligatoria)
+   * `failure_url`: URL de error (obligatoria)
+   * `webhook_url`: opcional, pero altamente recomendada
+3. SPIDI responde con un `session_id`.
+4. Tu frontend construye el `payment_url` → `{url_base}/{session_id}`.
+5. Rediriges al usuario con `window.location.href` para abrir SPIDI en la misma pestaña.
+6. Una vez completado el intento de pago, SPIDI redirige automáticamente al `success_url` o `failure_url`, concatenando el parámetro `session_id`.
+   * *Ejemplo:*
+     * `[success_url]?session_id=sess_abc123`
+     * `[failure_url]?session_id=sess_abc123`
+7. Tu aplicación debe leer el `session_id` desde la URL y consultar el endpoint de estado de sesión para validar el resultado.
+   * **Nunca asumas que llegar al `success_url` implica un pago exitoso; siempre valida con el endpoint.**
+8. Si implementaste un **webhook**, también recibirás la notificación en tu API.
 
 {/* Caja de Alerta (Warning) */}
 <div style={{ backgroundColor: '#0a161b', border: '1px solid #2a3a35', borderRadius: '12px', padding: '1.2rem', display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '2.5rem', marginTop: '1.5rem' }}>
   <span style={{ fontSize: '1.2rem', color: '#ffd700' }}>⚠️</span>
   <p style={{ margin: 0, fontSize: '0.95rem', color: '#a0b2bd' }}>
-    <strong style={{ color: '#fff' }}>Nunca asumas que llegar al success_url implica un pago exitoso.</strong> Siempre valida con el endpoint de estado.
+    <strong style={{ color: '#fff' }}>Consideraciones técnicas:</strong><br/>
+    • SPIDI solo agrega el parámetro `session_id` en la redirección.<br/>
+    • No incluye estado ni información sensible.<br/>
+    • Los estados posibles son: <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>pending</code>, <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>paid</code>, <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>failed</code>, <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>expired</code>.
   </p>
 </div>
 
 ### Estrategia 2 — Nueva pestaña (casos especiales)
-**Flujo:** Tu web → Nueva pestaña con SPIDI → Usuario cierra pestaña → Regresa a tu web
+**Flujo:**
+Tu aplicación web → Nueva pestaña con SPIDI → El usuario cierra la pestaña → Regreso manualmente a tu web
 
-Dejar `success_url` y `failure_url` vacíos. Usar polling, botón "Ya pagué", o webhooks.
+**Cuándo usarla:**
+Solo en casos donde necesites mantener el pago en una pestaña separada por razones de experiencia de usuario o restricciones técnicas del navegador.
+
+**Pasos:**
+1. El usuario hace clic en el botón de pago.
+2. Tu backend crea la sesión de pago con SPIDI, incluyendo únicamente:
+   * `webhook_url` (opcional, pero recomendada).
+   * `success_url` y `failure_url` deben quedar vacías.
+3. SPIDI responde con el `session_id`.
+4. Tu frontend construye el `payment_url` → `{url_base}/{session_id}`.
+5. Pides al usuario abrir el enlace en una nueva pestaña.
+6. El pago se realiza en la página de SPIDI.
+7. Al finalizar, el usuario cierra la pestaña manualmente y vuelve a la pestaña original.
+8. Tu aplicación puede:
+   * Consultar periódicamente el estado de la sesión.
+   * Mostrar un botón "Ya pagué" para disparar la verificación.
+   * Usar el **webhook** para recibir la confirmación en backend.
 
 ---
 
 ## Botón SPIDI para App
 
-### Estrategia 1 — Deeplink (recomendada)
-Configura `success_url: miapp://pago-exitoso` y `failure_url: miapp://pago-fallido`. SPIDI redirige al deeplink con `session_id`.
+El Botón SPIDI para App permite integrar pagos inmediatos dentro de aplicaciones móviles (Android, iOS o frameworks híbridos) mediante **deeplinks** o navegación **WebView**, manteniendo la experiencia del usuario dentro del entorno de tu app.
 
-### Estrategia 2 — Captura de cambio de URL
-Detecta cambio de URL dentro del WebView, cierra WebView, muestra pantalla nativa.
-
-{/* Caja de Nota (Tip) */}
-<div style={{ backgroundColor: '#0a161b', border: '1px solid #132724', borderRadius: '12px', padding: '1.2rem', display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '2.5rem', marginTop: '1.5rem' }}>
-  <span style={{ fontSize: '1.2rem', color: '#ffb84d' }}>💡</span>
-  <p style={{ margin: 0, fontSize: '0.95rem', color: '#a0b2bd' }}>
-    <strong style={{ color: '#fff' }}>Nota técnica WebView:</strong> SPIDI requiere WebView con soporte para interceptar URLs, ejecutar JavaScript, y seguridad moderna. Recomendados: WKWebView (iOS), Chrome Custom Tabs (Android).
-  </p>
-</div>
-
----
-
-## Comprobante y fidelización
-
-El endpoint de status devuelve una **URL del comprobante de pago**. Mostrar este enlace mejora la transparencia y en el comprobante SPIDI invita al usuario a registrarse, lo que **reduce comisiones** a mediano plazo.
-
-## Resumen de endpoints
-
-{/* Tarjeta POST */}
-<div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '1.5rem', border: '1px solid #132724' }}>
-  <div style={{ backgroundColor: '#dcf0ea', padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-    <span style={{ backgroundColor: '#b5e3d8', color: '#043b2c', fontWeight: 'bold', padding: '4px 10px', borderRadius: '6px', fontSize: '0.85rem', fontFamily: 'monospace' }}>POST</span>
-    <code style={{ backgroundColor: 'transparent', color: '#ffffff', fontSize: '1rem', border: 'none', padding: 0, textShadow: '0 1px 3px rgba(0,0,0,0.2)' }}>/api/v1/ext/payment-sessions/buttons</code>
-  </div>
-  <div style={{ backgroundColor: '#eef8f5', padding: '1.2rem', color: '#5b7a73', fontSize: '0.95rem' }}>
-    Crear sesión de pago tipo botón.
-  </div>
-</div>
-
-{/* Tarjeta GET */}
-<div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '3rem', border: '1px solid #132724' }}>
-  <div style={{ backgroundColor: '#dcf0ea', padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-    <span style={{ backgroundColor: '#b5e3d8', color: '#043b2c', fontWeight: 'bold', padding: '4px 10px', borderRadius: '6px', fontSize: '0.85rem', fontFamily: 'monospace' }}>GET</span>
-    <code style={{ backgroundColor: 'transparent', color: '#ffffff', fontSize: '1rem', border: 'none', padding: 0, textShadow: '0 1px 3px rgba(0,0,0,0.2)' }}>/api/v1/ext/payment-sessions/status/&#123;session_id&#125;</code>
-  </div>
-  <div style={{ backgroundColor: '#eef8f5', padding: '1.2rem', color: '#5b7a73', fontSize: '0.95rem' }}>
-    Consultar estado y resultado de la sesión.
-  </div>
-</div>
+### Integración para Aplicaciones Móviles
+Cuando tu app abre la página de pago de SPIDI dentro de un WebView, existen dos estrategias posibles para recuperar el control

@@ -1,0 +1,116 @@
+---
+id: proceso-api-merchant
+title: Proceso de Pago en API Merchant
+---
+
+# Proceso de Pago en API Merchant
+
+## Aspectos Generales
+
+Esta guía detalla el ciclo de vida del proceso de pago en la API Merchant de SPIDI. El flujo de integración comprende dos actores principales:
+
+1. **El Sistema Externo (App Externa):** Inicia la solicitud del pago definiendo el valor y otra información referencial para la transacción.
+2. **El Terminal POS:** Funciona como un dispositivo punto de venta tradicional. Una vez que el operador pasa la tarjeta del cliente (o el cliente la ingresa) y el pago se procesa con éxito localmente, el POS realiza las operaciones necesarias y se encarga de enviar la confirmación del pago a la API Merchant.
+
+A continuación, se ilustra el diagrama de estados de la operación:
+
+
+---
+
+## Pasos para realizar la integración:
+
+### 1. Solicitar el Pago (App Externa)
+
+Inicialmente, el sistema externo genera una intención de pago. Esta orden quedará en estatus `PENDING` a la espera de que el Terminal POS logre conciliar y confirmar el pago.
+
+:::caution Importante
+La autorización de este endpoint requiere obligatoriamente del uso del Bearer Token de Merchant (`BearerAuth`) dentro de las cabeceras HTTP. No olvides que como la transacción está generada, NO se encuentra autorizada monetariamente todavía.
+:::
+
+* **Petición:** `POST /api/v1/merchants/{merchantId}/transactions`
+* **Seguridad:** Requiere Autorización Bearer (`Authorization: Bearer <tú-token>`).
+* **Cuerpo:**
+
+```json
+{
+  "orderId": "ORD-123456",
+  "amountReference": 10.50,
+  "currencyReference": "USD",
+  "allowAmountChange": false,
+  "clientIdentification": "V12345678",
+  "terminalSerial": "POS-987654321"
+}
+```
+
+* **Respuesta (201 Created):**
+
+```json
+{
+  "title": "Operación Procesada",
+  "detail": "La transacción ha sido procesada y se ha devuelto el estado actual de la operación.",
+  "data": {
+    "merchantId": "MERCHANT-001",
+    "orderId": "ORD-123456",
+    "status": "PENDING",
+    "createdAt": "2024-04-16T15:00:00Z"
+  }
+}
+```
+
+### 2. Consultar Solicitudes de Pago
+
+El dispositivo POS necesita recuperar las solicitudes activas para saber cuáles cobrar. Al ser un dispositivo físico vinculado, **no requiere de un proceso de login/autenticación Bearer**, sino que utiliza su identidad por Serial y Firma HMAC.
+
+* **Petición (Lista):** `GET /api/v1/pos-terminals/{serialNumber}/transactions?status=PENDING`
+* **Petición (Específica):** `GET /api/v1/pos-terminals/{serialNumber}/transactions/{orderId}`
+* **Seguridad:** Requiere Firma HMAC (`x-pos-signature`, `x-pos-timestamp`). La firma se construye a partir de la URL (con query string), el timestamp y una cadena vacía como body. Ver [Guía de Comunicación con POS](./comunicaciones).
+
+:::info Nota
+La API nunca aplica filtros ocultos por defecto. Para asegurar que el POS solo renderice transacciones cobrables, el integrador debe anexar los filtros explícitos pidiendo las órdenes en estado `PENDING`.
+:::
+
+A través de estos endpoints, se obtiene el identificador de la orden, los importes y el estado. El dispositivo determinará si procede con el cobro y enviará la confirmación.
+
+### 3. Confirmar el Pago (Terminal POS)
+
+Una vez que el operador desliza o inserta la tarjeta del cliente en el punto de venta, y el cobro se realiza exitosamente en el dispositivo, el POS ejecuta las operaciones necesarias y envía la confirmación del pago a la API Merchant.
+
+**Descartes Concurrentes y Asíncronos:** Debido a la desconexión con el mundo físico, si el sistema externo descarta la orden pasándola a `DISCARDED` pero el punto de venta **ya ha ejecutado** el cobro de la tarjeta del cliente de manera local, el terminal POS tiene la potestad de llamar a este endpoint de confirmación de manera regular. La transacción pasará de `DISCARDED` directamente a `PAID`, sobrescribiendo el descarte y garantizando los fondos correspondientes.
+
+**Seguridad de las Operaciones:** Para poder aplicar exitosamente la confirmación o anulación del pago, el terminal deberá seguir las reglas de firma y empaquetado. Por favor, consulta la sección de autenticación en nuestra [Guía de Comunicación con POS](./comunicaciones) para entender en detalle las medidas de seguridad que protegen estas peticiones.
+
+* **Petición:** `POST /api/v1/pos-terminals/{serialNumber}/transactions/{orderId}/commit`
+* **Seguridad:** Requiere Firma HMAC (`x-pos-signature`, `x-pos-timestamp`). La firma se construye a partir del body JSON, el timestamp y la URL. Ver [Guía de Comunicación con POS](./comunicaciones).
+* **Cuerpo:**
+
+```json
+{
+  "authorizationCode": "171509",
+  "processCode": "002000",
+  "commitAt": "2024-04-16T15:05:00Z",
+  "amountReference": 10.50,
+  "terminalNumber": "T-123",
+  "trace": "000535",
+  "utcDate": "1007151715",
+  "cardTypeForRpt": "C",
+  "visorMccCard": "MCC",
+  "batchNumber": "B0027"
+}
+```
+
+---
+
+## Flujo Alternativo: Descarte o Anulación de Pago
+
+Si requieres comprender el circuito para descartar una orden antes de ser confirmada por el POS o anular un pago ya confirmado, revisa la guía del [Proceso de Descarte y Anulación de Pago](./proceso-descarte-anulacion).
+
+---
+
+## Documentación de los endpoints
+
+Puedes ver o probar estos detalles dentro de la API directamente bajo el índice de endpoints.
+
+* [Solicitar Pago](../../api-merchant/merchant/solicitar-pago)
+* [Confirmar Pago en POS](../../api-merchant/terminales/confirmar-pago)
+* [Descartar / Anular Pago](../../api-merchant/merchant/anular-pago)
+* [Confirmar Anulación en POS](../../api-merchant/terminales/confirmar-anulacion)

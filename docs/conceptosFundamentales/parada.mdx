@@ -7,40 +7,140 @@ hide_title: true
 <span style={{ color: 'var(--ifm-color-primary)', fontWeight: 800, fontSize: '0.85rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
   Conceptos Fundamentales
 </span>
-<h1 style={{ fontSize: '3.2rem', fontWeight: 900, marginBottom: '1rem', color: '#ffffff' }}>
+<h1 style={{ fontSize: '3.2rem', fontWeight: 900, marginBottom: '1rem' }}>
   La Parada <span style={{ color: 'var(--ifm-color-primary)' }}>SPIDI</span>
 </h1>
 
-<p style={{ fontSize: '1.15rem', color: '#a0b2bd', marginBottom: '3.5rem', lineHeight: '1.6' }}>
+<p style={{ fontSize: '1.15rem', opacity: 0.8, marginBottom: '2.5rem', lineHeight: '1.6' }}>
   Funcionalidad premium: un punto fijo y permanente de cobro.
 </p>
 
-{/* Caja de Información Principal */}
-<div style={{ backgroundColor: '#0a161b', border: '1px solid #132724', borderRadius: '12px', padding: '1.8rem', display: 'flex', gap: '1rem', alignItems: 'flex-start', marginBottom: '5rem' }}>
+{/* Caja de Información Principal (Adaptable a Light/Dark Mode) */}
+<div style={{ backgroundColor: 'var(--ifm-background-surface-color)', border: '1px solid rgba(128, 128, 128, 0.2)', borderRadius: '12px', padding: '1.8rem', display: 'flex', gap: '1rem', alignItems: 'flex-start', marginBottom: '3rem' }}>
   <span style={{ fontSize: '1.5rem' }}>🚏</span>
-  <p style={{ margin: 0, fontSize: '1.05rem', color: '#a0b2bd', lineHeight: '1.6' }}>
-    <strong style={{ color: '#fff' }}>La Parada SPIDI</strong> es una funcionalidad premium que permite crear un punto fijo y permanente de cobro, accesible vía portal web o QR. Puede generarse desde Botón SPIDI o Solicitud SPIDI, adaptándose al canal de origen.
-  </p>
+  <div style={{ margin: 0, fontSize: '1.05rem', lineHeight: '1.6' }}>
+    <p style={{ marginBottom: '1rem' }}>
+      Las <strong>Paradas SPIDI</strong> son URLs únicas y permanentes asignadas a cada cliente, con las que puede acceder a un espacio para <strong>consultar, gestionar y pagar todas sus solicitudes de pago activas o históricas</strong>, sin necesidad de recibir nuevos enlaces cada vez. Basta con acceder a su Parada para revisar o completar los pagos pendientes.
+    </p>
+    <p style={{ margin: 0 }}>
+      Funcionan como un <strong>punto de acceso trazable y constante</strong>, ideal para <strong>relaciones comerciales continuas, suscripciones o pagos recurrentes</strong>, simplificando la experiencia tanto para el pagador como para la empresa.
+    </p>
+  </div>
 </div>
 
-{/* Sección de Construcción Centrada */}
-<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginTop: '2rem', marginBottom: '4rem' }}>
-  
-  {/* Icono de construcción con borde punteado */}
-  <div style={{ width: '80px', height: '80px', backgroundColor: '#0a161b', borderRadius: '20px', border: '2px dashed #132724', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '2.5rem', marginBottom: '2rem' }}>
-    🚧
-  </div>
-  
-  <h2 style={{ color: '#fff', fontSize: '1.8rem', marginBottom: '1rem' }}>Documentación en construcción</h2>
-  
-  <p style={{ color: '#a0b2bd', fontSize: '1.1rem', maxWidth: '600px', lineHeight: '1.6', marginBottom: '2.5rem' }}>
-    Estamos trabajando en el contenido detallado de Paradas SPIDI. Pronto encontrarás guías de integración, flujos técnicos, ejemplos de request/response y buenas prácticas.
-  </p>
-  
-  {/* Botón/Pastilla de Próximamente */}
-  <div style={{ backgroundColor: '#052a20', border: '1px solid #0a4032', padding: '8px 24px', borderRadius: '24px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-    <span style={{ color: 'var(--ifm-color-primary)', fontSize: '0.6rem' }}>●</span>
-    <span style={{ color: 'var(--ifm-color-primary)', fontSize: '0.85rem', fontWeight: 'bold', letterSpacing: '1px' }}>PRÓXIMAMENTE</span>
-  </div>
+Desde una Parada, el cliente puede:
+* Visualizar solicitudes pendientes, pagadas o vencidas.
+* Pagar directamente, sin depender de nuevos envíos de enlace.
+* Consultar su historial de pagos y operaciones anteriores.
 
+En escenarios de suscripciones, pagos recurrentes o relaciones comerciales continuas, las Paradas SPIDI son el acompañante ideal de las Solicitudes de Pago.
+
+---
+
+## Cómo funcionan
+
+* Cada Parada se crea y asocia mediante el **API de SPIDI**, vinculándola siempre a un mismo cliente o referencia o a múltiples clientes o referencias específicas de tu plataforma.
+* Posee una **URL única y permanente**, que el cliente puede visitar en cualquier momento para consultar y pagar.
+* Desde esa URL, el cliente ve todas sus **solicitudes de pago** (pendientes, vencidas o completadas), cada una con su <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>payment_url</code> generado por SPIDI.
+* Los pagos se procesan en la **interfaz segura de SPIDI**, con las mismas opciones inmediatas: **débito bancario, Pago Móvil y Binance Pay (USDT)**, siempre con **liquidación directa en bolívares**.
+* La Parada puede configurarse para mostrar **solo solicitudes activas** o **todo el historial**, según las necesidades de tu plataforma.
+* Tu plataforma puede usar una **única Parada por cliente** o generar **Paradas específicas por servicio, contrato o suscripción**.
+
+---
+
+## Integración técnica
+
+* Las Paradas pueden **crearse de forma individual o masiva** mediante el endpoint <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>POST /api/v1/ext/stops</code>, que permite generar **1..N Paradas en un solo request**. Esta función resulta clave para procesos de **onboarding inicial** (por ejemplo, 100 suscriptores) y **reintentos idempotentes**.
+* Cada Parada se identifica por un <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>stop_id</code> y puede consultarse o modificarse posteriormente.
+* Las Paradas agrupan las **Solicitudes de Pago** relacionadas con un mismo cliente o referencia lógica.
+* Es recomendable definir y mantener un campo <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>internal_reference</code> para cada recurso (cliente, contrato o factura), que servirá para:
+  * **Conciliar y auditar** operaciones entre tu sistema y SPIDI.
+  * **Asociar solicitudes de pago** con su Parada correspondiente.
+
+### Estados de una Parada
+
+* **Active:** existe al menos un enlace de pago activo; se muestran los pagos disponibles en una lista con su identificador, monto y estado.
+* **Empty (sin enlaces activos):** la parada muestra el estado “no hay pagos disponibles”.
+* **Disabled:** la parada está deshabilitada temporalmente, pero puede reactivarse.
+* **Deleted:** la parada fue eliminada definitivamente.
+
+### ⚙️ Resumen de endpoints
+
+* **Crear Parada (P):** genera una o varias Paradas vinculadas a clientes o referencias internas.
+* **Consultar Parada (P):** devuelve el detalle y los enlaces de pago asociados.
+* **Actualizar o deshabilitar Parada (P):** permite ajustar título, mensaje o estado.
+* **Eliminar Parada (P):** baja definitiva, aunque se recomienda deshabilitar antes de eliminar.
+
+---
+
+## Asociación entre Paradas y Solicitudes
+
+La **asociación entre Paradas y Sesiones de Pago SPIDI** permite vincular, en una sola llamada o de forma individual, los **enlaces de pago** (`payment_url`) derivados de cada **sesión de pago** (`session_id`) con una **Parada** (`stop_id`) específica.
+
+Esta relación convierte cada Parada en un **contenedor dinámico de sesiones activas**, ofreciendo una experiencia continua para el cliente y una administración centralizada para el comercio.
+
+Cada Parada puede tener **0, 1 o varias sesiones activas asociadas**, todas compartiendo el mismo `stop_id`. 
+Los endpoints disponibles permiten **operar en lote, reordenar o consultar** las sesiones asociadas de forma eficiente y segura.
+
+### Concepto operativo
+
+* Una Parada actúa como el **punto de referencia único** del cliente o suscripción.
+* Las sesiones de pago representan operaciones activas y se asocian a esa Parada; en la interfaz del cliente aparecen como sus enlaces de pago (`payment_url`).
+* Las empresas pueden **agregar, remover, reemplazar, limpiar o reordenar** las sesiones activas según sus procesos comerciales o ciclos de renovación.
+* La asociación es completamente **dinámica, reversible y trazable** mediante el API.
+* SPIDI mantiene una trazabilidad completa de todas las operaciones de asociación para auditoría y sincronización con tu sistema.
+
+### ⚙️ Endpoints principales
+
+<div style={{ backgroundColor: 'var(--ifm-background-surface-color)', borderRadius: '12px', border: '1px solid rgba(128, 128, 128, 0.2)', overflowX: 'auto', marginBottom: '3rem', marginTop: '1.5rem' }}>
+  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px', margin: 0 }}>
+    <thead>
+      <tr style={{ backgroundColor: 'rgba(128, 128, 128, 0.05)', borderBottom: '1px solid rgba(128, 128, 128, 0.2)' }}>
+        <th style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold', width: '15%' }}>Método</th>
+        <th style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold', width: '35%' }}>Endpoint</th>
+        <th style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold', width: '50%' }}>Descripción</th>
+      </tr>
+    </thead>
+    <tbody style={{ fontSize: '0.95rem', lineHeight: '1.6' }}>
+      <tr style={{ borderBottom: '1px solid rgba(128, 128, 128, 0.2)' }}>
+        <td style={{ padding: '1.2rem 1.5rem', fontWeight: '900' }}>POST</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: 'rgba(128, 128, 128, 0.1)' }}>&#123;&#123;base_url&#125;&#125;/api/v1/ext/payment-stops/batch</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Ejecuta operaciones en lote para asociar, desasociar, reemplazar o limpiar sesiones de pago en una o varias Paradas. Soporta las operaciones <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>add</code>, <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>remove</code>, <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>replace</code>, <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>clear</code>. Idempotente mediante <code>Idempotency-Key</code>.</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid rgba(128, 128, 128, 0.2)' }}>
+        <td style={{ padding: '1.2rem 1.5rem', fontWeight: '900' }}>PATCH</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: 'rgba(128, 128, 128, 0.1)' }}>&#123;&#123;base_url&#125;&#125;/api/v1/ext/payment-stops/reorder</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Define el orden de visualización de los enlaces de pago (<code>payment_url</code>) dentro de una Parada o en lote para varias.</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid rgba(128, 128, 128, 0.2)' }}>
+        <td style={{ padding: '1.2rem 1.5rem', fontWeight: '900' }}>GET</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: 'rgba(128, 128, 128, 0.1)' }}>&#123;&#123;base_url&#125;&#125;/api/v1/ext/payment-stops/&#123;stop_id&#125;/links</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Devuelve la lista completa de sesiones asociadas a una Parada, incluyendo sus estados y sus enlaces de pago.</td>
+      </tr>
+      <tr>
+        <td style={{ padding: '1.2rem 1.5rem', fontWeight: '900' }}>POST</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: 'rgba(128, 128, 128, 0.1)' }}>&#123;&#123;base_url&#125;&#125;/api/v1/ext/payment-stops/query</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Permite consultar los enlaces activos de múltiples Paradas en una sola llamada, con filtros, paginación y reducción de campos. Optimizado para paneles y sincronización masiva.</td>
+      </tr>
+    </tbody>
+  </table>
 </div>
+
+---
+
+## Buenas prácticas de implementación
+
+* **Idempotencia:** usa siempre <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>Idempotency-Key</code> en operaciones en lote; misma clave + mismo payload → misma respuesta.
+* Solo las sesiones en estado <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>pending</code> pueden asociarse como activas; las <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>paid</code> o <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>expired</code> se mueven automáticamente al histórico.
+* <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>replace</code> con `session_ids: []` equivale a <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>clear</code> (limpieza total).
+* Usa <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>reorder</code> después de un `replace` o `add` para actualizar el orden visual.
+* Para sincronizar o renderizar múltiples Paradas, utiliza `POST {{base_url}}/payment-stop/links/query`, limitando los campos con `only_fields` para eficiencia.
+* Implementa webhooks de tipo `stop.link_*` para mantener tu backend sincronizado sin depender de polling frecuente.
+
+## Beneficios operativos
+
+* **Escalabilidad:** maneja cientos de Paradas y miles de enlaces en pocas llamadas.
+* **Flexibilidad:** soporta operaciones masivas o por Parada individual.
+* **Trazabilidad total:** cada batch genera un `batch_id` para auditoría y conciliación.
+* **Eficiencia:** reduce la carga de consultas repetitivas con `links/query`.
+* **Experiencia persistente:** el cliente siempre accede al mismo `stop_url`, con sus enlaces actualizados automáticamente.

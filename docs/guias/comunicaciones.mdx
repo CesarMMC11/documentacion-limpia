@@ -1,0 +1,197 @@
+---
+id: comunicaciones
+title: Comunicación con punto de venta
+---
+
+# Comunicación con punto de venta
+
+El registro de un punto de venta y generación de código de activación otp se realiza mediante el endpoint `POST /api/v1/merchants/{merchantId}/pos-terminals/{serialNumber}/pairing`
+
+El endpoint para activar el punto de venta y obtener la secret key es `POST /api/v1/pos-terminals/{serialNumber}/pairing/activate`
+
+## Seguridad SPIDI: Dos Modelos de Confianza
+
+Para garantizar la integridad y el control de las operaciones, SPIDI utiliza dos modelos de seguridad distintos según el actor que realiza la petición. Esta separación evita que el robo de un dispositivo físico comprometa la cuenta del comercio, y viceversa.
+
+| Actor | Alcance | Seguridad | Credencial |
+| :--- | :--- | :--- | :--- |
+| **Merchant / Admin** | Backend, ERP, CRM, Dashboards. | **JWT (Bearer Auth)** | Token de corta duración. |
+| **Terminal / POS** | Dispositivo físico (Hardware). | **HMAC (POS Signature)** | Secret Key persistente en el dispositivo. |
+
+---
+
+## Fase 1: El Proceso de Pairing (Vinculación)
+
+El pairing ocurre **una sola vez** en la vida del dispositivo. Es el acto de "presentar" el hardware al servidor para generar una identidad secreta.
+
+
+**Paso 1: Registro Administrativo**
+
+Antes de iniciar la vinculación, el administrador o sistema administrativo debe autenticarse (ver [Guía de Registro y Login](./registro-auth.mdx)) para obtener un **Bearer Token**. Sin este token, no es posible registrar terminales.
+
+Una vez autenticado, solicita vincular un sistema terminal con el **Serial de Hardware** y genera un código de activación (OTP).
+
+* **Petición:** `POST /api/v1/merchants/{merchantId}/pos-terminals/{serialNumber}/pairing`
+* **Seguridad:** Requiere Header `Authorization: Bearer <token>`.
+
+**Paso 2: El Intercambio de Secretos**
+
+El técnico ingresa el código en el POS. El dispositivo termina realizando una petición al servidor:
+
+* **Petición:** `POST /api/v1/pos-terminals/{serialNumber}/pairing/activate`
+* **Cuerpo:** `{ "code": "685987" }`
+
+**Paso 3: Persistencia de Identidad**
+
+El servidor valida el código y genera una **Secret Key** (un hash aleatorio y largo).
+
+* El **Servidor** guarda la clave asociada a ese Serial.
+* El **POS** recibe la clave y la guarda en su memoria segura.
+
+:::caution Importante
+A partir de aquí, la `Secret Key` nunca vuelve a viajar por internet.
+:::
+
+---
+
+## Fase 2: Autenticación por Firma HMAC (Operación)
+
+Una vez vinculado, el POS no usa el código de activación ni contraseñas. **Cada petición** (lectura o escritura) se autentica mediante una firma **HMAC-SHA256** construida a partir de 4 elementos:
+
+| # | Elemento | Descripción |
+| :-: | :--- | :--- |
+| **1** | **Request Body** | El JSON serializado del cuerpo. Para `GET` o peticiones sin cuerpo se usa una cadena vacía `""`. |
+| **2** | **Timestamp** | Marca temporal ISO 8601 enviada en la cabecera `x-pos-timestamp`. |
+| **3** | **URL** | Path completo de la petición, incluyendo query string si existe. |
+| **4** | **Secret Key** | La clave secreta persistida en el dispositivo durante el pairing. |
+
+**Fórmula de firma:**
+
+```text
+message = body + "\n" + timestamp + "\n" + url
+signature = HMAC_SHA256(message, secret_key)
+```
+
+**Cabeceras obligatorias en toda petición POS:**
+
+| Cabecera | Valor |
+| :--- | :--- |
+| `x-pos-signature` | Resultado hexadecimal de la firma HMAC-SHA256. |
+| `x-pos-timestamp` | Marca temporal ISO 8601 usada en la firma (ej. `2024-04-16T15:05:00Z`). |
+
+
+### Ejemplo A: Firma para una petición POST (con cuerpo)
+
+**Operación:** Confirmar un pago.
+
+```text
+url       = /api/v1/pos-terminals/98202003219630/transactions/AddC4cfb/commit
+timestamp = 2024-04-16T15:05:00Z
+body      = {"authorizationCode":"171509","processCode":"002000","commitAt":"2024-04-16T15:05:00Z","amountReference":10.50,...}
+```
+
+```text
+message   = body + "\n" + timestamp + "\n" + url
+signature = HMAC_SHA256(message, secret_key)
+```
+
+### Ejemplo B: Firma para una petición GET (sin cuerpo)
+
+**Operación:** Listar transacciones pendientes.
+
+```text
+url       = /api/v1/pos-terminals/98202003219630/transactions?status=PENDING
+timestamp = 2024-04-16T15:00:00Z
+body      = "" (cadena vacía)
+```
+
+```text
+message   = "" + "\n" + "2024-04-16T15:00:00Z" + "\n" + "/api/v1/pos-terminals/98202003219630/transactions?status=PENDING"
+signature = HMAC_SHA256(message, secret_key)
+```
+
+:::info Nota
+Al no existir un cuerpo en las peticiones `GET`, el `message` comienza con el salto de línea directamente. La URL debe incluir los parámetros de consulta (query string) tal como se envían al servidor.
+:::
+
+---
+
+## Operaciones del Terminal POS
+
+**Consultar Transacciones (Lectura)**
+
+Antes de procesar un cobro o una anulación, el dispositivo debe consultar el servidor para obtener la lista de órdenes pendientes.
+
+* **Para listar pagos pendientes:** `GET /api/v1/pos-terminals/{serialNumber}/transactions?status=PENDING`
+* **Para listar anulaciones pendientes:** `GET /api/v1/pos-terminals/{serialNumber}/transactions?status=VOID_PENDING`
+* **Para consultar una orden específica:** `GET /api/v1/pos-terminals/{serialNumber}/transactions/{orderId}`
+
+**Confirmar un Pago**
+
+Cuando el punto de venta procesa un cobro, notifica a la API sobre este cambio al estado `PAID`.
+
+* **Petición:** `POST /api/v1/pos-terminals/{serialNumber}/transactions/{orderId}/commit`
+* **Cuerpo:**
+
+```json
+{
+  "authorizationCode": "171509",
+  "processCode": "002000",
+  "commitAt": "2024-04-16T15:05:00Z",
+  "amountReference": 10.50,
+  "terminalNumber": "T-123",
+  "trace": "000535",
+  "utcDate": "1007151715",
+  "cardTypeForRpt": "C",
+  "visorMccCard": "MCC",
+  "batchNumber": "B0027"
+}
+```
+
+**Confirmar Anulación del Pago**
+
+Si el dispositivo detecta que necesita confirmar una anulación generada externamente, no hay necesidad de enviar un cuerpo JSON extra.
+
+* **Petición:** `POST /api/v1/pos-terminals/{serialNumber}/transactions/{orderId}/invalidation/commit`
+* **Cuerpo:** *(Sin cuerpo/Payload vacío - usar `""` como `body` en la firma)*
+
+**Crear un Cierre de Lote (Settlement)**
+
+Al final de la jornada, el POS envía el resumen para conciliar operaciones.
+
+* **Petición:** `POST /api/v1/pos-terminals/{serialNumber}/settlements`
+* **Cuerpo:**
+
+```json
+{
+  "batchNumber": "B0027",
+  "transactionCount": 12,
+  "closedAt": "2023-04-04T15:26:51.187Z",
+  "currencyReference": "USD",
+  "terminal": "98202003219630",
+  "debitBatch": "DB-9901"
+}
+```
+
+---
+
+## Tabla Resumen de Endpoints POS
+
+| Operación | Método | Endpoint | Body |
+| :--- | :--- | :--- | :--- |
+| Listar transacciones | `GET` | `/.../transactions?status=...` | `""` |
+| Consultar transacción | `GET` | `/.../transactions/{orderId}` | `""` |
+| Confirmar pago | `POST` | `/.../transactions/{orderId}/commit` | `JSON` |
+| Confirmar anulación | `POST` | `/.../transactions/{orderId}/invalidation/commit` | `""` |
+| Crear cierre de lote | `POST` | `/.../settlements` | `JSON` |
+
+> Todas las peticiones anteriores requieren las cabeceras `x-pos-signature` y `x-pos-timestamp`.
+
+---
+
+## Resumen de Seguridad para el Comercio
+
+* **No hay contraseñas:** No hay nada que un empleado pueda anotar en un post-it.
+* **Integridad:** Si alguien intercepta la señal e intenta cambiar el monto del pago, la URL o la marca temporal, la firma fallará y el servidor rechazará la petición.
+* **Protección contra Replay:** El `x-pos-timestamp` permite al servidor rechazar peticiones antiguas o duplicadas.
+* **Control Total:** Si un POS se pierde o es robado, el administrador lo "desvincula" desde el panel y la Secret Key queda invalidada instantáneamente.

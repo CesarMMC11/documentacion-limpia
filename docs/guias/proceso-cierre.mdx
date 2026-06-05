@@ -1,0 +1,91 @@
+---
+id: proceso-cierre
+title: Proceso de Cierre de Lote (Settlement)
+---
+
+# Proceso de Cierre de Lote (Settlement)
+
+Esta guía explica el flujo para notificar un cierre de lote desde un terminal POS físico y cómo un sistema externo (ERP, sistema contable, etc.) puede consultar el último cierre validado al finalizar la jornada.
+
+## Aspectos Generales
+
+El proceso de cierre asegura la sincronización de las operaciones procesadas por un terminal POS con los sistemas centrales de Spidi y su posterior conciliación por parte del comercio.
+
+1. **Notificación de Cierre (POS):** El terminal POS envía el resumen del lote a Spidi tras ejecutar su cierre interno.
+2. **Consulta del Cierre (Sistema Externo):** El sistema backend del comercio consulta a Spidi el último cierre registrado para un terminal específico con el fin de verificar su contabilidad o caja diaria.
+
+## Pasos para realizar la integración:
+
+### 1. Notificar el Cierre de Lote (POS)
+
+Al ejecutar el cierre, el terminal POS debe notificar el resumen a la plataforma.
+
+* **Petición:** `POST /api/v1/pos-terminals/{serialNumber}/settlements`
+* **Seguridad:** Requiere Firma HMAC (`x-pos-signature`, `x-pos-timestamp`). La firma se construye a partir del body JSON, el timestamp y la URL. Ver [Guía de Comunicación con POS](./comunicaciones).
+* **Cuerpo:**
+
+```json
+{
+  "batchNumber": "B-10293",
+  "transactionCount": 12,
+  "closedAt": "2023-04-04T15:26:51.187Z",
+  "currencyReference": "USD",
+  "terminal": "98202003219630",
+  "debitBatch": "DB-9901"
+}
+```
+
+* **Respuesta (200 OK):**
+
+```json
+{
+  "title": "Cierre de Lote ejecutado",
+  "detail": "El cierre ha sido registrado correctamente por el sistema.",
+  "data": {
+    "batchNumber": "B-10293",
+    "transactionCount": 12,
+    "closedAt": "2023-04-04T15:26:51.187Z",
+    "currencyReference": "USD",
+    "terminal": "98202003219630",
+    "debitBatch": "DB-9901"
+  }
+}
+```
+
+:::info Seguridad de las Operaciones
+Para notificar válidamente el cierre, el terminal deberá verificar su identidad. Consulta nuestra [Guía de Comunicación con POS](./comunicaciones) para revisar cómo funciona y qué medida de seguridad protege esta petición.
+:::
+
+### 2. Consultar el Último Cierre (Sistema Externo / Merchant)
+
+Al final del día, el sistema backend o ERP del comercio puede obtener el último cierre registrado para su respectivo cuadre. Para obtener únicamente el **último**, se debe ordenar por fecha de forma descendente y limitar el resultado a **1**.
+
+* **Petición:** `GET /api/v1/merchants/{merchantId}/pos-terminals/{serialNumber}/settlements?sort=-closedAt&size=1`
+* **Seguridad:** Requiere Token Bearer (`Authorization: Bearer <tú-token>`).
+* **Uso:** Operación administrativa del lado del comercio.
+* **Respuesta (200 OK):**
+
+```json
+{
+  "title": "Último Cierre de Lote",
+  "data": [
+    {
+      "batchNumber": "B-10293",
+      "transactionCount": 12,
+      "closedAt": "2023-04-04T15:26:51.187Z",
+      "currencyReference": "USD",
+      "terminal": "98202003219630",
+      "debitBatch": "DB-9901"
+    }
+  ]
+}
+```
+
+:::info Nota de Integración
+Siguiendo el estándar de filtros dinámicos del comercio, no existe un endpoint especializado `latest`. El uso de `sort` y `size` garantiza la flexibilidad necesaria para auditorías y consultas históricas.
+:::
+
+## Documentación de los endpoints
+
+* [Crear Cierre](../../api-merchant/terminales/crear-cierre)
+* [Listar todos los Cierres](../../api-merchant/terminales/listar-cierres) (Usar para obtener el último con `sort`)

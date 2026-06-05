@@ -1,0 +1,131 @@
+---
+id: confirmar-pago
+title: Confirmar Pago
+hide_title: true
+---
+
+<span style={{ color: 'var(--ifm-color-primary)', fontWeight: 800, fontSize: '0.85rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+  Terminales
+</span>
+<h1 style={{ fontSize: '3.2rem', fontWeight: 900, marginBottom: '1rem', color: 'var(--ifm-color-primary)' }}>
+  Confirmar Pago
+</h1>
+
+<p style={{ fontSize: '1.15rem', color: '#a0b2bd', marginBottom: '2.5rem', lineHeight: '1.6' }}>
+  Pasa una transacción que estaba en estado PENDING a PAID. Adicionalmente, si la orden fue cancelada (estado CANCELED) antes de la confirmación del POS, emitir esta llamada sobrescribirá la cancelación y confirmará el pago con estado PAID.
+</p>
+
+## Endpoint
+
+<div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem', border: '1px solid rgba(128, 128, 128, 0.2)' }}>
+  <div style={{ backgroundColor: 'rgba(37, 194, 160, 0.1)', padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem', overflowX: 'auto' }}>
+    <span style={{ backgroundColor: 'var(--ifm-color-primary)', color: '#000', fontWeight: 'bold', padding: '4px 10px', borderRadius: '6px', fontSize: '0.85rem', fontFamily: 'monospace' }}>POST</span>
+    <code style={{ backgroundColor: 'transparent', color: 'var(--ifm-font-color-base)', fontWeight: 'bold', fontSize: '0.95rem', border: 'none', padding: 0, whiteSpace: 'nowrap' }}>https://dev.api.spuntodeventa.com/api/v1/pos-terminals/:serialNumber/transactions/:orderId/commit</code>
+  </div>
+</div>
+
+## Autenticación Requerida
+
+<div style={{ backgroundColor: 'var(--ifm-background-surface-color)', border: '1px solid rgba(128, 128, 128, 0.2)', borderRadius: '12px', padding: '1.2rem', marginBottom: '3rem' }}>
+  <p style={{ margin: '0 0 0.5rem 0', fontWeight: 'bold', fontSize: '1.05rem', color: 'var(--ifm-font-color-base)' }}>apiKey: POSSignature</p>
+  <p style={{ margin: '0 0 0.5rem 0', color: '#a0b2bd', fontSize: '0.95rem' }}>Requiere el uso de la firma HMAC para verificar la autenticidad de la solicitud</p>
+  <p style={{ margin: 0, color: '#a0b2bd', fontSize: '0.95rem' }}><strong style={{ color: 'var(--ifm-font-color-base)' }}>Header:</strong> x-pos-signature</p>
+</div>
+
+## Request
+
+<div style={{ marginBottom: '1rem', fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--ifm-font-color-base)', textTransform: 'uppercase' }}>
+  PATH PARAMETERS
+</div>
+
+<ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem 0', backgroundColor: 'var(--ifm-background-surface-color)', borderRadius: '12px', border: '1px solid rgba(128, 128, 128, 0.2)', padding: '1.5rem' }}>
+  <li style={{ borderBottom: '1px solid rgba(128, 128, 128, 0.2)', paddingBottom: '1.2rem', marginBottom: '1.2rem' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <div>
+        <code style={{ color: 'var(--ifm-font-color-base)', backgroundColor: 'transparent', padding: 0, fontSize: '1.05rem', fontWeight: 'bold' }}>serialNumber</code> <span style={{ color: '#a0b2bd', fontSize: '0.9rem' }}>string</span>
+      </div>
+      <span style={{ color: '#ff4d4d', fontSize: '0.75rem', fontWeight: 'bold' }}>REQUIRED</span>
+    </div>
+  </li>
+  <li>
+    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <div>
+        <code style={{ color: 'var(--ifm-font-color-base)', backgroundColor: 'transparent', padding: 0, fontSize: '1.05rem', fontWeight: 'bold' }}>orderId</code> <span style={{ color: '#a0b2bd', fontSize: '0.9rem' }}>string</span>
+      </div>
+      <span style={{ color: '#ff4d4d', fontSize: '0.75rem', fontWeight: 'bold' }}>REQUIRED</span>
+    </div>
+  </li>
+</ul>
+
+<div style={{ display: 'inline-block', border: '1px solid var(--ifm-color-primary)', color: 'var(--ifm-color-primary)', padding: '4px 12px', borderRadius: '16px', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+  APPLICATION/JSON
+</div>
+
+<div style={{ marginBottom: '1rem', fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--ifm-font-color-base)' }}>
+  BODY <span style={{ color: '#ff4d4d', marginLeft: '4px' }}>REQUIRED</span>
+</div>
+
+{/* Lista de campos del Body */}
+<ul style={{ listStyle: 'none', padding: 0, margin: 0, backgroundColor: 'var(--ifm-background-surface-color)', borderRadius: '12px', border: '1px solid rgba(128, 128, 128, 0.2)', padding: '1.5rem', marginBottom: '3rem' }}>
+  
+  <li style={{ borderBottom: '1px solid rgba(128, 128, 128, 0.2)', paddingBottom: '1.2rem', marginBottom: '1.2rem' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <div><code style={{ color: 'var(--ifm-font-color-base)', fontSize: '1.05rem', fontWeight: 'bold' }}>authorizationCode</code></div>
+      <span style={{ color: '#ff4d4d', fontSize: '0.75rem', fontWeight: 'bold' }}>REQUIRED</span>
+    </div>
+    <p style={{ color: '#a0b2bd', fontSize: '0.9rem' }}>Código de autorización bancaria. Example: 171599</p>
+  </li>
+
+  <li style={{ borderBottom: '1px solid rgba(128, 128, 128, 0.2)', paddingBottom: '1.2rem', marginBottom: '1.2rem' }}>
+    <div><code style={{ color: 'var(--ifm-font-color-base)', fontSize: '1.05rem', fontWeight: 'bold' }}>processCode</code></div>
+    <p style={{ color: '#a0b2bd', fontSize: '0.9rem' }}>Example: 002000</p>
+  </li>
+  
+  <li style={{ borderBottom: '1px solid rgba(128, 128, 128, 0.2)', paddingBottom: '1.2rem', marginBottom: '1.2rem' }}>
+    <div><code style={{ color: 'var(--ifm-font-color-base)', fontSize: '1.05rem', fontWeight: 'bold' }}>commitAt</code></div>
+    <p style={{ color: '#a0b2bd', fontSize: '0.9rem' }}>Fecha y hora de la confirmación de la operación (ISO 8801).</p>
+  </li>
+
+  <li>
+    <div><code style={{ color: 'var(--ifm-font-color-base)', fontSize: '1.05rem', fontWeight: 'bold' }}>amountReference, terminalNumber, trace, utcDate, cardTypeForRpt, visorMccCard, batchNumber</code></div>
+    <p style={{ color: '#a0b2bd', fontSize: '0.9rem' }}>Datos adicionales de la transacción.</p>
+  </li>
+</ul>
+
+---
+
+## Code Example
+
+```javascript title="Node.js (Axios)"
+const axios = require('axios');
+let data = JSON.stringify({
+  "authorizationCode": "171599",
+  "processCode": "002000",
+  "commitAt": "2024-07-29T15:51:28.071Z",
+  "amountReference": 100.001,
+  "terminalNumber": "98202003219630",
+  "trace": "000535",
+  "utcDate": "1007151715",
+  "cardTypeForRpt": "C",
+  "visorMccCard": "MCC",
+  "batchNumber": 3
+});
+
+let config = {
+  method: 'post',
+  maxBodyLength: Infinity,
+  url: '[https://dev.api.spuntodeventa.com/api/v1/pos-terminals/:serialNumber/transactions/:orderId/commit](https://dev.api.spuntodeventa.com/api/v1/pos-terminals/:serialNumber/transactions/:orderId/commit)',
+  headers: { 
+    'Content-Type': 'application/json',
+    'x-pos-signature': '<FIRMA_HMAC>'
+  },
+  data: data
+};
+
+axios.request(config)
+.then((response) => {
+  console.log(JSON.stringify(response.data));
+})
+.catch((error) => {
+  console.log(error);
+});

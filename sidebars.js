@@ -1,103 +1,143 @@
+/**
+ * Creating a sidebar enables you to:
+ - create an ordered group of docs
+ - render a sidebar for each doc of that group
+ - provide next/previous navigation
+ */
+
 // @ts-check
 
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
   tutorialSidebar: [
-    {
-      type: 'category',
-      label: '✨ ¿Primera vez aquí?',
-      collapsed: false,
-      items: [
-        { type: 'doc', id: 'intro', label: 'Bienvenida y flujo' },
-      ],
-    },
-    {
-      type: 'category',
-      label: 'Quick Start',
-      collapsed: false,
-      items: [
-        { type: 'doc', id: 'quickStart/pasos', label: 'Pasos para usar SPIDI' }, 
-      ],
-    },
+    
+    // --- 1. ENLACES DIRECTOS SUPERIORES ---
+    'intro',
+    'quickStart/pasos', 
+
+    // --- 2. CONCEPTOS FUNDAMENTALES ---
     {
       type: 'category',
       label: 'Conceptos Fundamentales',
-      collapsed: false,
       items: [
-        { type: 'doc', id: 'conceptosFundamentales/introduccion', label: 'Introducción' },
-        { type: 'doc', id: 'conceptosFundamentales/acuerdo-de-pago', label: 'Acuerdo de Pago' },
-        { type: 'doc', id: 'conceptosFundamentales/botones-de-pago', label: 'Botones de Pago' },
-        { type: 'doc', id: 'conceptosFundamentales/solicitudes-de-pago', label: 'Solicitudes de Pago' },
-        { type: 'doc', id: 'conceptosFundamentales/paradas', label: 'Paradas' },
-        { type: 'doc', id: 'conceptosFundamentales/webhooks', label: 'Webhooks' },
+        'conceptosFundamentales/introduccion',
+        'conceptosFundamentales/acuerdo-de-pago',
+        'conceptosFundamentales/botones-de-pago',
+        'conceptosFundamentales/solicitudes-de-pago',
+        'conceptosFundamentales/paradas',
+        'conceptosFundamentales/webhooks',
       ],
     },
+
+    // --- 3. ESPECIFICACIONES DE APIs ---
     {
       type: 'category',
-      label: 'Endpoints',
-      collapsed: false,
+      label: 'Especificaciones de APIs',
       items: [
-        { type: 'link', href: '#', label: 'Introduction' },
-        
-        // Bloque Login / Acuerdos
+        // 3.1. API PRODUCTOS
         {
-          type: 'doc', 
-          id: 'endpoints/login',
-          label: 'Login',
-          className: 'api-method post',
-        },
-        {
-          type: 'doc',
-          id: 'endpoints/crear-acuerdo',
-          label: 'Crear Acuerdo',
-          className: 'api-method post',
+          type: 'category',
+          label: 'API Productos',
+          items: [
+            {
+              type: 'category',
+              label: 'Endpoints Comunes',
+              items: [
+                'endpoints/login',
+                'endpoints/crear-acuerdo',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'Endpoints Botón',
+              items: [
+                'endpoints/crear-sesion-boton',
+                'endpoints/estado-sesion-boton',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'Endpoints Solicitud',
+              items: [
+                'endpoints/crear-sesiones-solicitud',
+                'endpoints/estado-sesion-solicitud',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'Endpoints Parada',
+              items: [
+                'endpoints/listar-paradas',
+              ],
+            },
+          ],
         },
 
-        // Bloque Sesión Botón (B)
+        // 3.2. API MERCHANT APLICATIVO FINANCIERO
         {
-          type: 'doc',
-          id: 'endpoints/crear-sesion-boton',
-          label: 'Crear Sesión (B)',
-          className: 'api-method post',
-        },
-        {
-          type: 'doc',
-          id: 'endpoints/estado-sesion-boton',
-          label: 'Estado Sesión (B)',
-          className: 'api-method get',
-        },
-
-        // Bloque Sesión Solicitud (S)
-        {
-          type: 'doc',
-          id: 'endpoints/estado-sesion-solicitud',
-          label: 'Estado Sesión (S)',
-          className: 'api-method get',
-        },
-        {
-          type: 'doc',
-          id: 'endpoints/crear-sesiones-solicitud',
-          label: 'Crear Sesiones (S)',
-          className: 'api-method post',
-        },
-        
-        // Bloque Paradas
-        {
-          type: 'doc',
-          id: 'endpoints/listar-paradas',
-          label: 'Listar Paradas',
-          className: 'api-method get',
+          type: 'category',
+          label: 'API Merchant Aplicativo Financiero',
+          items: [
+            'api-merchant/introduccion',
+            {
+              type: 'category',
+              label: 'Merchants',
+              items: [
+                'api-merchant/merchant/registrarte',
+                'api-merchant/merchant/iniciar-sesion',
+                'api-merchant/merchant/generar-otp',
+                'api-merchant/merchant/solicitar-pago',
+                'api-merchant/merchant/consultar-pago',
+                'api-merchant/merchant/anular-pago',
+                'api-merchant/merchant/listar-cierre-lotes',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'Terminales',
+              items: [
+                'api-merchant/terminales/activar-dispositivo',
+                'api-merchant/terminales/listar-pagos-pos',
+                'api-merchant/terminales/consultar-pago',
+                'api-merchant/terminales/confirmar-pago',
+                'api-merchant/terminales/confirmar-anulacion',
+                'api-merchant/terminales/listar-cierres',
+                'api-merchant/terminales/crear-cierre',
+                'api-merchant/terminales/consultar-cierre',
+              ],
+            },
+          ],
         },
       ],
     },
+
+    // --- 4. GUÍAS DE USO ---
+    {
+      type: 'category',
+      label: 'Guías de Uso',
+      items: [
+        {
+          type: 'category',
+          label: 'Introducción a la API Merchant',
+          items: [
+            'guias/registro-auth',
+            'guias/proceso-cierre',
+            'guias/proceso-descarte-anulacion',
+            'guias/proceso-api-merchant',
+            'guias/comunicaciones',
+          ],
+        },
+      ],
+    },
+
+    // --- 5. RECURSOS ADICIONALES ---
     {
       type: 'category',
       label: 'Recursos Adicionales',
-      collapsed: false,
       items: [
-        { type: 'doc', id: 'recursos/como-usar-especificaciones', label: 'Cómo usar las Especificaciones' },
-        { type: 'doc', id: 'recursos/glosario', label: 'Glosario de campos' },
-        { type: 'doc', id: 'recursos/postman', label: 'Colección de Postman' },
+        'recursos/como-usar-especificaciones',
+        'recursos/glosario',
+        'recursos/postman',
       ],
     },
   ],

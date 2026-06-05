@@ -1,0 +1,94 @@
+---
+id: crear-cierre
+title: Crear Cierre
+hide_title: true
+---
+
+<span style={{ color: 'var(--ifm-color-primary)', fontWeight: 800, fontSize: '0.85rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+  Terminales
+</span>
+<h1 style={{ fontSize: '3.2rem', fontWeight: 900, marginBottom: '1rem', color: 'var(--ifm-color-primary)' }}>
+  Crear Cierre
+</h1>
+
+<p style={{ fontSize: '1.15rem', color: '#a0b2bd', marginBottom: '2.5rem', lineHeight: '1.6' }}>
+  Con este endpoint el pos notifica el cierre del lote.
+</p>
+
+## Endpoint
+
+<div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem', border: '1px solid rgba(128, 128, 128, 0.2)' }}>
+  <div style={{ backgroundColor: 'rgba(37, 194, 160, 0.1)', padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem', overflowX: 'auto' }}>
+    <span style={{ backgroundColor: 'var(--ifm-color-primary)', color: '#000', fontWeight: 'bold', padding: '4px 10px', borderRadius: '6px', fontSize: '0.85rem', fontFamily: 'monospace' }}>POST</span>
+    <code style={{ backgroundColor: 'transparent', color: 'var(--ifm-font-color-base)', fontWeight: 'bold', fontSize: '0.95rem', border: 'none', padding: 0, whiteSpace: 'nowrap' }}>https://dev.api.spuntodeventa.com/api/v1/pos-terminals/:serialNumber/settlements</code>
+  </div>
+</div>
+
+## Autenticación Requerida
+
+<div style={{ backgroundColor: 'var(--ifm-background-surface-color)', border: '1px solid rgba(128, 128, 128, 0.2)', borderRadius: '12px', padding: '1.2rem', marginBottom: '3rem' }}>
+  <p style={{ margin: '0 0 0.5rem 0', fontWeight: 'bold', fontSize: '1.05rem', color: 'var(--ifm-font-color-base)' }}>apiKey: POSSignature</p>
+  <p style={{ margin: '0 0 0.5rem 0', color: '#a0b2bd', fontSize: '0.95rem' }}>Requiere el uso de la firma HMAC para verificar la autenticidad de la solicitud</p>
+  <p style={{ margin: 0, color: '#a0b2bd', fontSize: '0.95rem' }}><strong style={{ color: 'var(--ifm-font-color-base)' }}>Header:</strong> x-pos-signature</p>
+</div>
+
+## Request
+
+<div style={{ marginBottom: '1rem', fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--ifm-font-color-base)', textTransform: 'uppercase' }}>
+  PATH PARAMETERS
+</div>
+
+<ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem 0', backgroundColor: 'var(--ifm-background-surface-color)', borderRadius: '12px', border: '1px solid rgba(128, 128, 128, 0.2)', padding: '1.5rem' }}>
+  <li>
+    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <div>
+        <code style={{ color: 'var(--ifm-font-color-base)', backgroundColor: 'transparent', padding: 0, fontSize: '1.05rem', fontWeight: 'bold' }}>serialNumber</code> <span style={{ color: '#a0b2bd', fontSize: '0.9rem' }}>string</span>
+      </div>
+      <span style={{ color: '#ff4d4d', fontSize: '0.75rem', fontWeight: 'bold' }}>REQUIRED</span>
+    </div>
+  </li>
+</ul>
+
+<div style={{ display: 'inline-block', border: '1px solid var(--ifm-color-primary)', color: 'var(--ifm-color-primary)', padding: '4px 12px', borderRadius: '16px', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+  APPLICATION/JSON
+</div>
+
+<div style={{ marginBottom: '1rem', fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--ifm-font-color-base)' }}>
+  BODY <span style={{ color: '#ff4d4d', marginLeft: '4px' }}>REQUIRED</span>
+</div>
+
+<ul style={{ listStyle: 'none', padding: 0, margin: 0, backgroundColor: 'var(--ifm-background-surface-color)', borderRadius: '12px', border: '1px solid rgba(128, 128, 128, 0.2)', padding: '1.5rem', marginBottom: '3rem' }}>
+  <li><code style={{ fontWeight: 'bold' }}>batchNumber</code>: Entero. Autoincremental gestionado desde el POS.</li>
+  <li><code style={{ fontWeight: 'bold' }}>transactionCount</code>: Entero. Cantidad de transacciones.</li>
+  <li><code style={{ fontWeight: 'bold' }}>closedAt</code>: string &lt;date-time&gt;. Fecha y hora.</li>
+  <li><code style={{ fontWeight: 'bold' }}>currencyReference</code>: Moneda de referencia.</li>
+  <li><code style={{ fontWeight: 'bold' }}>terminal</code>: objeto con detalles de id, affiliateCode, number, serial, etc.</li>
+  <li><code style={{ fontWeight: 'bold' }}>debitBatch</code>: string. (Definición pendiente).</li>
+</ul>
+
+---
+
+## Code Example
+
+```javascript title="Node.js (Axios)"
+const axios = require('axios');
+let data = JSON.stringify({
+  "batchNumber": 3,
+  "transactionCount": 12,
+  "closedAt": "2023-04-04T15:26:51.187Z",
+  "currencyReference": "USD",
+  "terminal": {
+    "id": "TMS ID",
+    "affiliateCode": "0010880050",
+    "number": "98202003219630",
+    "serial": "98202003219630"
+  }
+});
+
+let config = {
+  method: 'post',
+  url: '[https://dev.api.spuntodeventa.com/api/v1/pos-terminals/:serialNumber/settlements](https://dev.api.spuntodeventa.com/api/v1/pos-terminals/:serialNumber/settlements)',
+  headers: { 'Content-Type': 'application/json', 'x-pos-signature': '<FIRMA_HMAC>' },
+  data: data
+};
+// ... resto del request axios

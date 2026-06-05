@@ -7,52 +7,79 @@ hide_title: true
 <span style={{ color: 'var(--ifm-color-primary)', fontWeight: 800, fontSize: '0.85rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
   Conceptos Fundamentales
 </span>
-<h1 style={{ fontSize: '3.2rem', fontWeight: 900, marginBottom: '1rem', color: '#ffffff' }}>
+<h1 style={{ fontSize: '3.2rem', fontWeight: 900, marginBottom: '1rem' }}>
   Solicitudes de <span style={{ color: 'var(--ifm-color-primary)' }}>Pago</span>
 </h1>
 
-<p style={{ fontSize: '1.15rem', color: '#a0b2bd', marginBottom: '3.5rem', lineHeight: '1.6' }}>
+<p style={{ fontSize: '1.15rem', opacity: 0.8, marginBottom: '3.5rem', lineHeight: '1.6' }}>
   Emite invitaciones de pago preconfiguradas con enlace compartible.
 </p>
 
-## ¿Qué son las Solicitudes de Pago?
+Las **Solicitudes de Pago SPIDI** permiten **emitir invitaciones de pago preconfiguradas** (enlaces que puedes compartir por email, WhatsApp, SMS u otros canales para recibir pagos) con monto e identificación, optimizando la experiencia del pagador y asegurando que cada transacción sea **organizada, trazable y coherente con la planificación operativa** de tu plataforma.
 
-Las **Solicitudes de Pago SPIDI** permiten emitir invitaciones de pago preconfiguradas (enlaces compartibles por email, WhatsApp, SMS) con monto e identificación. Son ideales para **pagos directos, recurrentes, suscripciones o procesos programados**.
+Son la herramienta ideal para **recibir pagos directos, pagos recurrentes, suscripciones o procesos programados**, sin necesidad de que el cliente esté dentro de tu plataforma al momento del pago.
+
+Cada solicitud se crea mediante el **API de SPIDI** y se asocia a un **enlace único de pago** (<code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>payment_url</code>), que puede enviarse por **QR, correo electrónico, WhatsApp, SMS u otros canales de comunicación**.
+
+El cliente simplemente abre ese enlace para completar el pago en la interfaz segura de SPIDI.
+
+---
 
 ## Flujo de una solicitud de pago
 
-* Se crea por API **cuando se desee**, programada o manual, unitaria o masiva
-* Requiere **monto** (en Bs o moneda de referencia) y `internal_reference`
-* SPIDI genera hash único, status: `pending`
-* **Duración configurable**: fecha de vencimiento o sin expiración
-* Estados: `pending`, `paid`, `expired` — un pago fallido **no termina la sesión**
-* Si la moneda no es Bs, el monto se **ajusta a la tasa BCV vigente** al acceder
-* Permite crear **múltiples solicitudes (1..N) en un mismo request**
+* La **sesión se crea por API cuando se desee**, de forma **programada o manual**, unitaria o masiva, según la lógica de tu sistema.
+* Cada sesión requiere definir un **monto** (en **bolívares** o en una **moneda de referencia** como dólar BCV, euro BCV, peso colombiano o USDT) y una **identificación interna** (<code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>internal_reference</code>) para asociarla a una operación o cliente específico.
+* Al crear la sesión, **SPIDI genera un hash único** que identifica de forma segura la operación y su estado inicial (`status`) es <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>pending</code>.
+* La **duración de la sesión es configurable**, pudiendo establecer:
+  * una **fecha y hora de vencimiento**,
+  * o definir que **nunca expire**.
+  Si vence, puede configurarse para **expirar completamente** o **mostrar un mensaje personalizado** al usuario.
+* Los posibles estados de una solicitud son: <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>pending</code>, <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>paid</code>, <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>expired</code>.
+  * Un **pago fallido no termina la sesión**, por lo que no existe el estado <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>failed</code>.
+* El **pago puede ocurrir cualquier día**. Si la moneda de referencia usada al crear la sesión **no es bolívares**, el monto en Bs se **ajustará automáticamente a la tasa del BCV vigente en el momento del acceso**.
+* En la respuesta se devuelve un <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>payment_url</code>, al que el cliente debe acceder para completar el pago.
+* Una vez finalizado el pago, **SPIDI puede redirigir automáticamente** al usuario hacia la `success_url` o `failure_url`, si fueron configuradas.
+* Un **segundo endpoint** permite **consultar el estado** de la solicitud y sincronizar el resultado con tu sistema mediante **webhooks o consultas directas**.
+* Cada solicitud puede asociarse a un **acuerdo de liquidación**, con **reglas personalizadas, cuentas destino distintas o splits específicos** entre varios receptores.
+* Puedes habilitar que la solicitud ofrezca distintas **opciones de pago inmediatas**: **débito bancario, Pago Móvil o pago con criptomonedas (Binance Pay)**, todas con **liquidación directa en bolívares**.
+* Los endpoints del API permiten **crear múltiples solicitudes de pago (1..N) en un mismo request**, optimizando procesos masivos o automatizados.
+
+---
 
 ## Relación con las Paradas SPIDI
 
-Para suscripciones y pagos recurrentes, las **Paradas** son el acompañante ideal. Cada cliente tiene una Parada única donde consulta y paga todas sus solicitudes.
+Cuando las **Solicitudes de Pago** se utilizan en escenarios de **suscripciones, pagos recurrentes o relaciones comerciales continuas**, las **Paradas SPIDI** son su acompañante ideal. 
 
-## Resumen de endpoints
+Cada cliente puede contar con una **Parada única y permanente**, donde consulta, paga y gestiona todas sus solicitudes activas o anteriores, manteniendo un **punto de acceso único y trazable**.
+
+---
+
+## ⚙️ Resumen de endpoints
+
+Las solicitudes utilizan los mismos endpoints base que los botones, adaptados a su contexto:
 
 {/* Tarjeta POST */}
 <div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '1.5rem', border: '1px solid #132724' }}>
   <div style={{ backgroundColor: '#dcf0ea', padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
     <span style={{ backgroundColor: '#b5e3d8', color: '#043b2c', fontWeight: 'bold', padding: '4px 10px', borderRadius: '6px', fontSize: '0.85rem', fontFamily: 'monospace' }}>POST</span>
-    <code style={{ backgroundColor: 'transparent', color: '#ffffff', fontSize: '1rem', border: 'none', padding: 0, textShadow: '0 1px 3px rgba(0,0,0,0.2)' }}>/api/v1/ext/payment-sessions/request/batch</code>
+    <code style={{ backgroundColor: 'transparent', color: '#000000', fontWeight: 'bold', fontSize: '1rem', border: 'none', padding: 0 }}>/api/v1/ext/payment-sessions/request/batch</code>
   </div>
   <div style={{ backgroundColor: '#eef8f5', padding: '1.2rem', color: '#5b7a73', fontSize: '0.95rem' }}>
-    Crear de 1 a N sesiones de pago tipo solicitud.
+    <strong>Crear solicitud de pago (S):</strong> genera de [1 a N] sesiones de pago y devuelve sus respectivos <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>payment_url</code>.
   </div>
 </div>
 
 {/* Tarjeta GET */}
-<div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '3rem', border: '1px solid #132724' }}>
+<div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '1.5rem', border: '1px solid #132724' }}>
   <div style={{ backgroundColor: '#dcf0ea', padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
     <span style={{ backgroundColor: '#b5e3d8', color: '#043b2c', fontWeight: 'bold', padding: '4px 10px', borderRadius: '6px', fontSize: '0.85rem', fontFamily: 'monospace' }}>GET</span>
-    <code style={{ backgroundColor: 'transparent', color: '#ffffff', fontSize: '1rem', border: 'none', padding: 0, textShadow: '0 1px 3px rgba(0,0,0,0.2)' }}>/api/v1/ext/payment-sessions/status/&#123;session_id&#125;</code>
+    <code style={{ backgroundColor: 'transparent', color: '#000000', fontWeight: 'bold', fontSize: '1rem', border: 'none', padding: 0 }}>/api/v1/ext/payment-sessions/status/&#123;session_id&#125;</code>
   </div>
   <div style={{ backgroundColor: '#eef8f5', padding: '1.2rem', color: '#5b7a73', fontSize: '0.95rem' }}>
-    Consultar estado actual de una solicitud.
+    <strong>Consultar solicitud de pago (S):</strong> permite conocer el estado actual y el resultado final (<code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>pending</code>, <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>paid</code>, <code style={{ backgroundColor: 'rgba(37, 194, 160, 0.15)', color: 'var(--ifm-color-primary)' }}>expired</code>).
   </div>
 </div>
+
+<p style={{ marginTop: '2rem', fontSize: '1.05rem', lineHeight: '1.6' }}>
+  SPIDI se encarga del resto: <strong>conexión bancaria, validación, liquidación y notificación</strong>, garantizando operaciones seguras, trazables y compatibles con el sistema financiero venezolano.
+</p>

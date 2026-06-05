@@ -40,7 +40,7 @@ Los **webhooks** permiten recibir notificaciones automáticas de eventos relevan
     <tbody style={{ color: '#a0b2bd', fontSize: '0.95rem' }}>
       <tr style={{ borderBottom: '1px solid #132724' }}>
         <td style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold', color: '#fff' }}>Idempotencia</td>
-        <td style={{ padding: '1.2rem 1.5rem' }}>Incluyen <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>Idempotency-Key</code> , pueden reenviarse; procesamiento idempotente obligatorio</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Incluyen <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>Idempotency-Key</code>, pueden reenviarse; procesamiento idempotente obligatorio</td>
       </tr>
       <tr style={{ borderBottom: '1px solid #132724' }}>
         <td style={{ padding: '1.2rem 1.5rem', fontWeight: 'bold', color: '#fff' }}>Seguridad por firma</td>
@@ -62,12 +62,130 @@ Los **webhooks** permiten recibir notificaciones automáticas de eventos relevan
   </table>
 </div>
 
-## Headers Estándar
+## Estructura General del Webhook
+
+### Headers Estándar
 
 * <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>Content-Type: application/json</code>
-* <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>spidi-signature: sha256-hash</code> — Firma HMAC-SHA256 para validar autenticidad
-* <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>spidi-timestamp: 2025-10-13T14:30:00Z</code> — ISO 8601
-* <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>idempotency-key: e77a9dbf-...</code> — UUID v4 para procesamiento idempotente
+* <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>spidi-signature: sha256-hash</code> - Firma generada con clave privada del remitente (Plataforma o SPIDI). Se usa para validar autenticidad y evitar falsificaciones.
+* <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>spidi-timestamp: 2025-10-13T14:30:00Z</code> - Timestamp del evento en formato ISO 8601.
+* <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>idempotency-key: e77a9dbf-0c8c-4a7a-932f-9888aa88f4e9</code> - UUID v4 para garantizar procesamiento idempotente.
+
+---
+
+## Seguridad: ¿Para qué sirven los headers?
+
+### ¿Para qué sirve el `spidi-signature`?
+
+**El Escenario 1: Ataque (Falsificación de Datos / Man-in-the-Middle)**
+
+Situación: Un atacante intercepta una comunicación o intenta hacerse pasar por SPIDI.
+
+* **El Atacante:** Crea un JSON falso en su computadora.
+  * Evento: <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>payment_session.paid</code>
+  * Monto: $5000.00 (aunque el pago real nunca existió).
+* **El Envío:** El atacante envía este JSON a tu endpoint `/webhooks/spidi`.
+* **Tu Servidor (Vulnerable):**
+  * Recibe el JSON.
+  * Lee `status: paid`.
+  * **Error:** No verifica quién lo envió.
+* **Resultado:** Tu sistema libera un producto de $5000 a un estafador porque confió ciegamente en el contenido del mensaje.
+
+**El Escenario 2: Ataque (Falsificación Evitada)**
+
+Situación: Tu servidor implementa la validación de firma HMAC-SHA256.
+
+* **El Atacante:** Intenta lo mismo. Modifica el cuerpo del mensaje para decir que pagó $5000.00.
+* **El Envío:** El atacante necesita poner algo en el header `SPIDI-Signature`. Como no tiene tu Clave Secreta, inventa una firma o deja la original del mensaje anterior.
+* **Tu Servidor (Protegido):**
+  * Recibe el mensaje (Raw Body).
+  * Toma tu Clave Secreta (que solo tú y SPIDI tienen) y calcula matemáticamente el hash del cuerpo recibido.
+  * Calculado por ti: `Hash_XYZ` (Basado en el cuerpo modificado).
+  * Recibido en Header: `Hash_ABC` (Firma inventada o vieja).
+  * Validación: Tu código compara: ¿`Hash_XYZ` == `Hash_ABC`?
+  * Respuesta: **NO**.
+  * Acción: <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>401 Unauthorized</code>.
+* **Resultado:** El mensaje es rechazado. El sistema sabe que el contenido fue alterado o no fue firmado por SPIDI.
+
+---
+
+### ¿Para qué sirve el `spidi-timestamp`?
+
+**El Escenario 1: Ataque (Replay Attack Diferido)**
+
+Imagina este escenario donde NO validas el Timestamp, solo la Idempotencia:
+
+* **Día 1 (Hoy):**
+  * SPIDI te envía un webhook: "Pago de $100 recibido".
+  * Idempotency-Key: `A123`.
+  * Tu servidor procesa el pago y guarda `A123` en Redis con expiración de 24 horas.
+  * Resultado: Todo bien.
+* **Día 1 (5 minutos después):**
+  * Un atacante interceptó ese paquete. Lo reenvía.
+  * Tu servidor revisa Redis: "¿Existe A123?".
+  * Respuesta: "SÍ".
+  * Resultado: Tu servidor ignora la petición. La idempotencia funcionó.
+* **Día 3 (48 horas después):**
+  * Tu Redis ya borró la clave `A123` automáticamente porque pasó su tiempo de vida.
+  * El atacante (que guardó el paquete original) lo vuelve a enviar.
+  * Tu servidor revisa Redis: "¿Existe A123?".
+  * Respuesta: "NO" (porque ya se borró).
+  * **Resultado:** Tu servidor cree que es una transacción nueva. **PROCESA EL PAGO OTRA VEZ.**
+
+**El Escenario 2: Ataque (Replay Attack Evitado)**
+
+Situación: Tu servidor implementa la validación de Timestamp (límite de 5 minutos).
+
+* **Día 3 (48 horas después):**
+  * El atacante envía el paquete viejo.
+  * El paquete dice: `spidi-timestamp: 2026-02-06` (Fecha de hace 2 días).
+  * Tu servidor recibe el paquete hoy (`2026-02-08`).
+  * Tu código dice: *"Espera, la Idempotencia no la encuentro (se borró), PERO este mensaje dice que fue creado hace 48 horas. Mi límite es 5 minutos."*
+  * Acción: <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>401 Unauthorized / Reject</code>.
+
+---
+
+### ¿Para qué sirve el `idempotency-key`?
+
+**El Escenario 1: Fallo (Duplicidad por falta de Idempotency-Key)**
+
+Situación: SPIDI (o el emisor) envía el webhook sin enviar la llave de idempotencia, o tu servidor ignora ese header.
+
+* **El Evento:** SPIDI envía el webhook `payment_session.paid`. (Nota: No se envía Idempotency-Key).
+* **Tu Servidor (Ciego):**
+  * Recibe la petición.
+  * Crea la orden de compra #500 en tu base de datos.
+  * **Fallo:** Justo antes de responder `200 OK`, tu servidor tiene un micro-corte de internet o tarda demasiado en responder.
+* **SPIDI:**
+  * Como no recibió el `200 OK` a tiempo, asume que el mensaje se perdió.
+  * Espera 1 minuto y hace un reintento automático.
+* **Tu Servidor:**
+  * Recibe otra vez el mismo mensaje (mismo monto, mismos datos).
+  * Como no hay una llave única para identificar ese mensaje específico, tu servidor piensa: *"¡Genial! Otro pago nuevo"*.
+  * Crea la orden de compra #501 (Duplicada).
+* **Resultado:** Has procesado y entregado el producto dos veces por error, perdiendo dinero o inventario.
+
+**El Escenario 2: Éxito (Idempotencia Garantizada)**
+
+Situación: SPIDI envía la llave y tu servidor la utiliza para recordar el pasado inmediato.
+
+* **El Evento:** SPIDI envía el webhook `payment_session.paid`. Incluye Idempotency-Key: `B777-UUID-V4`.
+* **Tu Servidor (Protegido):**
+  * Recibe la petición.
+  * Primero guarda `B777-UUID-V4` en su base de datos/caché.
+  * Crea la orden de compra #500.
+  * **Fallo:** Nuevamente, la conexión se corta antes de enviar el `200 OK`.
+* **SPIDI:**
+  * Reintenta el envío después de 1 minuto.
+  * Envía exactamente el mismo Idempotency-Key: `B777-UUID-V4`.
+* **Tu Servidor:**
+  * Recibe el reintento.
+  * Consulta la base de datos: *"¿Ya he procesado la llave B777-UUID-V4?"*
+  * Respuesta: SÍ.
+  * Acción: Detiene el proceso (no crea orden nueva) y simplemente responde `200 OK` inmediatamente.
+* **Resultado:** Tu base de datos se mantiene limpia con una sola orden (#500) y SPIDI marca el evento como entregado exitosamente.
+
+---
 
 ## Eventos Principales
 
@@ -75,47 +193,55 @@ Los **webhooks** permiten recibir notificaciones automáticas de eventos relevan
   <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px', margin: 0 }}>
     <thead>
       <tr style={{ backgroundColor: '#112228', borderBottom: '1px solid #132724' }}>
-        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '40%' }}>Evento</th>
-        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '60%' }}>Descripción</th>
+        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '35%' }}>Evento</th>
+        <th style={{ padding: '1.2rem 1.5rem', color: '#fff', fontWeight: 'bold', width: '65%' }}>Descripción</th>
       </tr>
     </thead>
-    <tbody style={{ color: '#a0b2bd', fontSize: '0.95rem' }}>
+    <tbody style={{ color: '#a0b2bd', fontSize: '0.95rem', lineHeight: '1.5' }}>
       <tr style={{ borderBottom: '1px solid #132724' }}>
         <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>payment_session.created</code></td>
-        <td style={{ padding: '1.2rem 1.5rem' }}>Se creó una nueva sesión de pago</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Se creó una nueva sesión de pago.</td>
       </tr>
       <tr style={{ borderBottom: '1px solid #132724' }}>
         <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>payment_session.paid</code></td>
-        <td style={{ padding: '1.2rem 1.5rem' }}>Cobro exitoso al pagador</td>
-      </tr>
-      <tr style={{ borderBottom: '1px solid #132724' }}>
-        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>payment_session.accredited</code></td>
-        <td style={{ padding: '1.2rem 1.5rem' }}>Dinero enviado a todos los receptores</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}>Cobro exitoso al pagador.</td>
       </tr>
       <tr style={{ borderBottom: '1px solid #132724' }}>
         <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>payment_session.partially_accredited</code></td>
-        <td style={{ padding: '1.2rem 1.5rem' }}>Dinero enviado a uno de los receptores</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}><strong>Acreditación parcial:</strong> El dinero se envió al receptor (en caso de no tener split) o a uno de los receptores (en caso de split) del pago.</td>
+      </tr>
+      <tr style={{ borderBottom: '1px solid #132724' }}>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>payment_session.accredited</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}><strong>Acreditación completa:</strong> El dinero se envió al receptor (en caso de no tener split) o a todos los receptores (en caso de split) del pago de forma exitosa.</td>
       </tr>
       <tr>
-        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>payment_session.failed_accreditation</code></td>
-        <td style={{ padding: '1.2rem 1.5rem' }}>Fallo en envío a receptores</td>
+        <td style={{ padding: '1.2rem 1.5rem' }}><code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>payment_session.failed_credit</code></td>
+        <td style={{ padding: '1.2rem 1.5rem' }}><strong>Fallo de acreditación:</strong> Hubo un fallo en uno de los intentos de acreditación de la sesión de pago.</td>
       </tr>
     </tbody>
   </table>
 </div>
 
-## Seguridad: ¿Por qué validar la firma?
+## Reglas y recomendaciones para el Receptor
 
-Sin validación, un atacante podría enviar JSON falso a tu endpoint simulando un pago exitoso. Con HMAC-SHA256, tu servidor calcula el hash del body recibido y lo compara con <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>SPIDI-Signature</code>. Si no coinciden → <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>401 Unauthorized</code>.
+**El endpoint del receptor debe:**
+* Responder con <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>HTTP/1.1 200 OK</code> en un máximo de **5 segundos** para confirmar recepción.
+* En caso contrario, SPIDI reintentará.
+* Validar siempre la **firma** (`SPIDI-Signature`) y **timestamp** antes de procesar el evento.
+* Procesar de forma **idempotente** usando <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>Idempotency-Key</code>.
+* Registrar el evento para evitar reprocesos.
 
-## ¿Por qué validar el timestamp?
+**Los webhooks que emita SPIDI o que reciba de terceros deben:**
+* Incluir firma (HMAC o JWT) validable por la contraparte.
+* Usar timestamp para evitar replay attacks.
+* Ser idempotentes.
 
-Previene **replay attacks diferidos**. Si un atacante reenvía un paquete viejo días después (cuando la Idempotency-Key ya expiró de tu caché), el timestamp fuera de rango (>5 min) permite rechazarlo.
+## Body (ejemplo genérico)
 
-## Recomendaciones para Receptores
-
-* Validar firma y timestamp antes de procesar
-* Responder <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>200 OK</code> en menos de 2 segundos
-* Procesar en background si se necesita lógica adicional
-* Registrar <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>Idempotency-Key</code> para evitar reprocesos
-* Endpoint dedicado: <code style={{ backgroundColor: '#052a20', color: 'var(--ifm-color-primary)' }}>POST https://miapp.com/webhooks/spidi</code>
+{/* Bloque para el body genérico cuando esté disponible */}
+<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginTop: '2rem', marginBottom: '4rem' }}>
+  <div style={{ backgroundColor: '#052a20', border: '1px solid #0a4032', padding: '8px 24px', borderRadius: '24px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+    <span style={{ color: 'var(--ifm-color-primary)', fontSize: '0.6rem' }}>●</span>
+    <span style={{ color: 'var(--ifm-color-primary)', fontSize: '0.85rem', fontWeight: 'bold', letterSpacing: '1px' }}>EJEMPLO PRÓXIMAMENTE</span>
+  </div>
+</div>
